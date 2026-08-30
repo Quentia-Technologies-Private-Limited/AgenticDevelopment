@@ -1,0 +1,5 @@
+{
+  "name": "dev-made-easy",
+  "description": "Multi-agent development pipeline — planning, coding, code review, testing, and documentation in one orchestrated workflow. Enforces OOP with Factory Pattern, Repository Pattern, and SOLID principles across all generated code.",
+  "version": "1.0.0"
+}
