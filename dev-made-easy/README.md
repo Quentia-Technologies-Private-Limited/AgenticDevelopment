@@ -29,7 +29,8 @@ A **plugin** in this context is a curated, distributable collection of related a
 ```
 dev-made-easy/               ← this repo IS the plugin
 ├── .claude-plugin/
-│   └── plugin.json          ← official Claude Code plugin manifest
+│   ├── plugin.json          ← official Claude Code plugin manifest
+│   └── marketplace.json     ← marketplace manifest for plugin distribution
 ├── agents/
 │   ├── 00-orchestrator.md   ← each .md file is one agent
 │   ├── 01-planning.md
@@ -52,35 +53,6 @@ dev-made-easy/               ← this repo IS the plugin
 
 Once the files are there, Claude Code picks them up automatically — no restart needed.
 You can verify installed agents by running `/agents` in the Claude Code CLI.
-
-### How to create or extend your own plugin
-
-Want to fork this or build your own? Here is how:
-
-1. **Fork or clone** this repository
-
-2. **Edit an existing agent** — each `.md` file has a YAML frontmatter block at the top
-   and plain-English instructions below. Change the instructions, model, or description:
-   ```markdown
-   ---
-   name: My Custom Agent
-   description: What this agent does and when Claude Code should suggest it.
-   model: claude-opus-4-6
-   ---
-
-   # My Custom Agent
-
-   You are... (your instructions here)
-   ```
-
-3. **Add a new agent** — create a new `.md` file in `agents/` following the same structure.
-   The `name:` field is what you use to invoke it: `/agent "My Custom Agent"`
-
-4. **Test locally** — run `bash install.sh --local` inside any project and invoke
-   the agent with `/agent "My Custom Agent"` to verify it works
-
-5. **Publish** — push your fork to GitHub. Anyone can install it by cloning the repo
-   and running `bash install.sh`
 
 ### Agent file anatomy
 
@@ -122,19 +94,25 @@ This repo is a proper Claude Code plugin. It contains a `.claude-plugin/plugin.j
 
 ```bash
 # 1. Clone into Claude's skills directory
-git clone https://github.com/Quentia-Technologies-Private-Limited/AgenticDevelopment.git ~/.claude/skills/dev-made-easy
+git clone https://github.com/Quentia-Technologies-Private-Limited/AgenticDevelopment.git ~/.claude/skills/agentic-development
 
 # 2. Register the marketplace (one-time setup)
-claude plugin marketplace add ~/.claude/skills/dev-made-easy/dev-made-easy --scope user
+claude plugin marketplace add ~/.claude/skills/agentic-development/dev-made-easy --scope user
 
 # 3. Install the plugin
 claude plugin install dev-made-easy@agentic-development --scope user
-
-# 4. Verify it loaded
-claude plugin list
 ```
 
-> **Why two steps?** Claude Code's plugin system uses *marketplaces* as registries. Step 2 registers your local clone as a marketplace named `dev-made-easy`. Step 3 installs the plugin from it. You only run steps 2–3 once per machine.
+**4. Activate inside Claude Code** — open Claude Code in any project (`claude` in terminal), then run:
+
+```
+/reload-plugins
+```
+
+```bash
+# 5. Verify it loaded
+claude plugin list
+```
 
 **Install scopes:**
 
@@ -146,11 +124,11 @@ claude plugin list
 
 ```bash
 # Project scope (team shared)
-claude plugin marketplace add ~/.claude/skills/dev-made-easy/dev-made-easy --scope project
+claude plugin marketplace add ~/.claude/skills/agentic-development/dev-made-easy --scope project
 claude plugin install dev-made-easy@agentic-development --scope project
 
 # Local scope (personal, not committed)
-claude plugin marketplace add ~/.claude/skills/dev-made-easy/dev-made-easy --scope local
+claude plugin marketplace add ~/.claude/skills/agentic-development/dev-made-easy --scope local
 claude plugin install dev-made-easy@agentic-development --scope local
 ```
 
@@ -159,8 +137,8 @@ claude plugin install dev-made-easy@agentic-development --scope local
 If you prefer not to use the plugin system, the included `install.sh` copies agent files directly:
 
 ```bash
-git clone https://github.com/{your-username}/dev-made-easy.git
-cd dev-made-easy
+git clone https://github.com/Quentia-Technologies-Private-Limited/AgenticDevelopment.git
+cd AgenticDevelopment/dev-made-easy
 
 bash install.sh --global               # ~/.claude/agents/ — all projects
 bash install.sh --local                # .claude/agents/  — current project only
@@ -252,6 +230,70 @@ All agents use `claude-opus-4-6` by default. To switch models, edit the `model:`
 | `agents/03-code-review.md` | Code Review Agent |
 | `agents/04-testing.md` | Testing Agent |
 | `agents/05-documentation.md` | Documentation Agent |
+
+## Uninstallation
+
+### Claude Code plugin uninstall (if installed via plugin system)
+
+```bash
+# Step 1 — Uninstall the plugin
+claude plugin uninstall dev-made-easy@agentic-development --scope user
+
+# Step 2 — Remove the marketplace registration
+claude plugin marketplace remove agentic-development
+
+# Step 3 — Optionally delete the cloned repo
+rm -rf ~/.claude/skills/agentic-development
+```
+
+If you installed with a different scope, use the matching scope in step 1:
+
+```bash
+# Project scope
+claude plugin uninstall dev-made-easy@agentic-development --scope project
+
+# Local scope
+claude plugin uninstall dev-made-easy@agentic-development --scope local
+```
+
+### Manual uninstall (if installed via install.sh)
+
+```bash
+cd ~/.claude/skills/agentic-development/dev-made-easy
+
+bash install.sh --uninstall --global         # remove from ~/.claude/agents/
+bash install.sh --uninstall --local          # remove from .claude/agents/ in current project
+bash install.sh --uninstall --path /path/to/repo  # remove from a specific repo
+```
+
+### How to create or extend your own plugin
+
+Want to fork this or build your own? Here is how:
+
+1. **Fork or clone** this repository
+
+2. **Edit an existing agent** — each `.md` file has a YAML frontmatter block at the top
+   and plain-English instructions below. Change the instructions, model, or description:
+   ```markdown
+   ---
+   name: My Custom Agent
+   description: What this agent does and when Claude Code should suggest it.
+   model: claude-opus-4-6
+   ---
+
+   # My Custom Agent
+
+   You are... (your instructions here)
+   ```
+
+3. **Add a new agent** — create a new `.md` file in `agents/` following the same structure.
+   The `name:` field is what you use to invoke it: `/agent "My Custom Agent"`
+
+4. **Test locally** — run `bash install.sh --local` inside any project and invoke
+   the agent with `/agent "My Custom Agent"` to verify it works
+
+5. **Publish** — push your fork to GitHub. Anyone can install it by cloning the repo
+   and running `bash install.sh`
 
 ## License
 
