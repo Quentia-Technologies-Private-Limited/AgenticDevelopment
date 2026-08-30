@@ -104,6 +104,7 @@ model: claude-opus-4-6      ← change this per-agent to suit cost/quality needs
 | File | Purpose |
 |------|---------|
 | `.claude-plugin/plugin.json` | Official Claude Code plugin manifest — name, version, description |
+| `.claude-plugin/marketplace.json` | Marketplace manifest — required for `claude plugin marketplace add` |
 | `agents/*.md` | The agents — edit these to customise behaviour |
 | `install.sh` | Manual fallback installer (alternative to `claude plugin install`) |
 | `README.md` | Documentation for users of the plugin |
@@ -121,14 +122,19 @@ This repo is a proper Claude Code plugin. It contains a `.claude-plugin/plugin.j
 
 ```bash
 # 1. Clone into Claude's skills directory
-git clone https://github.com/{your-username}/dev-made-easy.git ~/.claude/skills/dev-made-easy
+git clone https://github.com/Quentia-Technologies-Private-Limited/AgenticDevelopment.git ~/.claude/skills/dev-made-easy
 
-# 2. Install globally (available in all your projects)
-claude plugin install dev-made-easy@skills-dir --scope user
+# 2. Register the marketplace (one-time setup)
+claude plugin marketplace add ~/.claude/skills/dev-made-easy/dev-made-easy --scope user
 
-# 3. Verify it loaded
+# 3. Install the plugin
+claude plugin install dev-made-easy@agentic-development --scope user
+
+# 4. Verify it loaded
 claude plugin list
 ```
+
+> **Why two steps?** Claude Code's plugin system uses *marketplaces* as registries. Step 2 registers your local clone as a marketplace named `dev-made-easy`. Step 3 installs the plugin from it. You only run steps 2–3 once per machine.
 
 **Install scopes:**
 
@@ -140,10 +146,12 @@ claude plugin list
 
 ```bash
 # Project scope (team shared)
-claude plugin install dev-made-easy@skills-dir --scope project
+claude plugin marketplace add ~/.claude/skills/dev-made-easy/dev-made-easy --scope project
+claude plugin install dev-made-easy@agentic-development --scope project
 
 # Local scope (personal, not committed)
-claude plugin install dev-made-easy@skills-dir --scope local
+claude plugin marketplace add ~/.claude/skills/dev-made-easy/dev-made-easy --scope local
+claude plugin install dev-made-easy@agentic-development --scope local
 ```
 
 ### Alternative — manual install script
