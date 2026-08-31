@@ -23,39 +23,27 @@ Read all files in `{spec_path}` before writing a single line of code:
 - `03-db-schema.md` — tables, columns, relationships, cache keys
 - `04-api-contracts.md` — endpoints, request/response shapes
 
-## Step 1 — Confirm Technology Choices
+## Step 1 — Read Technology Decisions
 
-**MANDATORY — do not skip this step regardless of how you were invoked.**
+Read `{spec_path}/tech-decisions.md`. This file was created and confirmed by the user during the Planning phase. Do not ask the user again — all technology decisions are already recorded there.
 
-Before writing any code, display the following assumptions and wait for the user to confirm or override. Do not proceed to Step 2 until the user explicitly responds.
+Display a brief confirmation before proceeding:
 
-Present this message to the user:
+```
+Technology stack loaded from tech-decisions.md:
+- Backend:   {Language} / {Framework}
+- Database:  {Primary DB} with {ORM}
+- Caching:   {Service or "None"}
+- Queue:     {Service or "None"}
+- Auth:      {Method}
+- Frontend:  {Framework or "None"}
+- Docker:    {Yes / No}
 
----
+Proceeding with implementation...
+```
 
-**Technology Stack — Please confirm or override before I begin**
-
-Here are the defaults I will use. Reply with the number(s) you want to change, or say **"confirmed"** to proceed with all defaults.
-
-| # | Component | Default | Common Alternatives |
-|---|-----------|---------|-------------------|
-| 1 | Backend Language | Python | Go, Node.js, Java, Ruby |
-| 2 | Backend Framework | FastAPI | Django, Flask, Express, Gin, Spring Boot |
-| 3 | Frontend Framework | Next.js | React, Vue, None |
-| 4 | Primary Database | PostgreSQL | MySQL, MongoDB, SQLite |
-| 5 | Caching Layer | Redis | Memcached, None |
-| 6 | Authentication | JWT | OAuth2, API Key, Session |
-| 7 | ORM / Query Builder | SQLAlchemy | Prisma, GORM, Hibernate |
-| 8 | Docker Setup | Yes | No |
-
-Example overrides:
-- `"3: None, 5: None"` — no frontend, no caching
-- `"1: Go, 2: Gin, 7: GORM"` — switch to Go stack
-- `"confirmed"` — use all defaults as shown
-
----
-
-Wait for the user's response. Apply any overrides they specify, echo back the final confirmed stack, then proceed to Step 2.
+If `tech-decisions.md` is missing, stop immediately and tell the user:
+> "tech-decisions.md not found in {spec_path}. Please run the Planning Agent first before invoking the Development Agent."
 
 ## Step 2 — Project Structure
 

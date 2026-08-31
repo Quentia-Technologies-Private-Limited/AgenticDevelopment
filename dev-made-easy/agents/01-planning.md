@@ -89,6 +89,7 @@ Report the derived `{spec_path}` at the start so the Orchestrator and user can s
   - `ServiceFactory` — creates all service instances
   - `RepositoryFactory` — creates repository instances (injectable via ServiceFactory)
 - **Key Classes**: {list main domain classes e.g. UserService, AuthService, UserRepository}
+- **Technology Stack**: See `tech-decisions.md` in this spec folder
 
 ## Non-Functional Requirements
 
@@ -105,6 +106,135 @@ Report the derived `{spec_path}` at the start so the Orchestrator and user can s
 ## Risks
 - {Risk and mitigation strategy}
 ```
+
+---
+
+## PAUSE — Technology Decisions (do this before writing any more files)
+
+After writing the User Stories section of `01-product-spec.md`, **stop and ask the user about the technology stack** before continuing. The DB schema, API contracts, and migration strategy all depend on these choices.
+
+**IMPORTANT — be conversational, not robotic.**
+- The user may not be technical. Explain each choice in plain English.
+- The user may give vague or partial answers like "use Java", "I want something fast", "whatever is easiest", "same as my other project which uses Django". That is fine — interpret their intent, fill in the related choices (e.g., "Java" implies Spring Boot, Hibernate, Maven), and confirm back.
+- If the user's answer is ambiguous or incomplete, ask a short follow-up. Do not assume silently.
+- Keep the conversation flowing — do not dump all 16 questions at once. Group them naturally.
+
+### How to ask
+
+Present the questions in **3 groups**, pausing after each for the user's response:
+
+**Group 1 — Backend & API** (ask first)
+
+> Now that we have the user stories, I need to know what technology to build this with.
+>
+> **Backend:** What programming language and framework should I use?
+> - Examples: "Python with FastAPI", "Node.js with Express", "Go", "Java with Spring Boot", "whatever you recommend"
+> - Default if you have no preference: **Python with FastAPI**
+>
+> **API style:** REST, GraphQL, or gRPC?
+> - Most common: REST (simple request/response). GraphQL is good if your frontend needs flexible queries.
+> - Default: **REST**
+>
+> **Authentication:** How should users log in?
+> - Examples: "JWT tokens", "OAuth2 with Google login", "API keys", "session cookies"
+> - Default: **JWT** (token-based, good for APIs)
+
+Wait for response. Then:
+
+**Group 2 — Data & Performance** (ask second)
+
+> **Database:** Where should data be stored?
+> - Examples: "PostgreSQL", "MySQL", "MongoDB", "SQLite for now"
+> - Default: **PostgreSQL** (reliable, widely supported)
+>
+> **Caching:** Does this project need caching for speed? (often not needed for simple apps)
+> - Examples: "Yes, use Redis", "No caching needed", "maybe for sessions"
+> - Default: **No** (will recommend it if your task clearly benefits from it)
+>
+> **Queue / Background jobs:** Does anything need to happen in the background? (e.g., sending emails, processing uploads, generating reports)
+> - Examples: "Yes, for sending emails use RabbitMQ", "background jobs with BullMQ", "no async work needed"
+> - Default: **No** (will recommend it if your task has async workflows)
+
+Wait for response. Then:
+
+**Group 3 — Infrastructure & Extras** (ask last)
+
+> **Frontend:** Does this project need a frontend/UI, or is it API-only?
+> - Examples: "API only", "Yes with React", "Next.js frontend", "just the backend for now"
+> - Default: **API only** (no frontend)
+>
+> **Docker:** Should I set up Docker containers so the app runs anywhere?
+> - Default: **Yes** (recommended for consistency)
+>
+> **External services:** Does this project need any of these?
+> - Email sending (e.g., SendGrid, Mailgun, or basic SMTP)
+> - File uploads/storage (e.g., AWS S3, Cloudinary, or local disk)
+> - Any other third-party service
+> - Default: **None**
+
+### Interpreting user responses
+
+If the user says something vague, map it and confirm:
+
+| User says | You interpret as | Confirm with |
+|-----------|-----------------|--------------|
+| "use Java" | Java, Spring Boot, Hibernate, Maven | "I'll use Java with Spring Boot and Hibernate — sound good?" |
+| "something easy" | Python, FastAPI, SQLAlchemy | "Python with FastAPI is the easiest to get started — OK?" |
+| "same as my last project" | Ask what that was | "What tech stack does your other project use?" |
+| "whatever is fastest" | Go with Gin, or Node.js with Express | "For raw speed, Go with Gin. For fast development, Node.js with Express. Which kind of fast?" |
+| "I don't know" | Use all defaults | "No problem — I'll use Python/FastAPI/PostgreSQL/JWT. You can change any of these later." |
+| "just proceed" | Use all defaults | "Got it — going with defaults: Python, FastAPI, PostgreSQL, JWT, Docker, REST API. Continuing..." |
+| "confirmed" | Use all defaults | Continue immediately |
+
+### After all 3 groups are confirmed
+
+Create `{spec_path}/tech-decisions.md` with the confirmed values using this template:
+
+```markdown
+# Technology Decisions: {task_title}
+
+## Backend
+- Language: {confirmed value}
+- Framework: {confirmed value}
+
+## Frontend
+- Required: Yes / No
+- Framework: {confirmed value or "None"}
+- CSS Framework: {confirmed value or "None"}
+
+## Database
+- Primary: {confirmed value}
+- ORM / Query Builder: {confirmed value}
+
+## Caching
+- Required: Yes / No
+- Service: {confirmed value or "None"}
+- Strategy: {e.g. cache-aside / write-through / "N/A"}
+
+## Queue / Async Processing
+- Required: Yes / No
+- Service: {confirmed value or "None"}
+- Use Case: {brief description or "N/A"}
+
+## Authentication
+- Method: {confirmed value}
+- Token Expiry: {confirmed value}
+
+## API Style
+- Type: {confirmed value}
+- Documentation: Swagger / OpenAPI (always included)
+
+## Infrastructure
+- Containerization: {e.g. Docker + Docker Compose / None}
+- Cloud Target: {e.g. AWS / GCP / Not specified}
+
+## External Services
+- Email: {confirmed value or "None"}
+- File Storage: {confirmed value or "None"}
+- Other: {any additional services mentioned by user or "None"}
+```
+
+Once `tech-decisions.md` is written, continue with the remaining spec files below using the confirmed values — never assume defaults.
 
 ---
 
@@ -146,7 +276,7 @@ Report the derived `{spec_path}` at the start so the Orchestrator and user can s
 ```markdown
 # Database Schema: {task_title}
 
-## Primary Database: PostgreSQL
+## Primary Database: {from tech-decisions.md}
 
 ## Tables
 
@@ -178,11 +308,11 @@ CREATE UNIQUE INDEX uq_{table}_{column} ON {table}({column});
 
 ## Migration Strategy
 
-- Use Alembic (Python) or language-equivalent migration tool
+- Use the migration tool appropriate for the confirmed ORM (e.g. Alembic for SQLAlchemy, Prisma Migrate for Prisma, golang-migrate for GORM)
 - Every migration must have upgrade + downgrade steps
 - Never drop columns without a deprecation period
 
-## Cache Schema (Redis)
+## Cache Schema (only include if Caching is Required in tech-decisions.md)
 
 | Key Pattern | Value Type | TTL | Purpose |
 |-------------|------------|-----|---------|

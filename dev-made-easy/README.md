@@ -150,21 +150,46 @@ bash install.sh                        # interactive prompt
 
 ## Usage
 
-Open Claude Code in your project directory and invoke the orchestrator:
+### Step 1 — Create your project folder
+
+```bash
+mkdir ~/Documents/GitHub/MyProject
+```
+
+### Step 2 — Open Claude Code in that folder
+
+```bash
+cd ~/Documents/GitHub/MyProject
+claude
+```
+
+### Step 3 — Invoke the Orchestrator with your task description
+
+In the Claude Code session, use the plugin prefix and paste your task description in the same message:
 
 ```
-/agent "Development Orchestrator"
+@dev-made-easy:Development Orchestrator
+
+Build a backend API for a personal task management system. Users can register
+and log in, then create and manage projects and tasks within those projects.
+
+Core Features:
+- User registration and login with JWT authentication
+- Create, read, update, and delete projects
+- Create tasks with title, description, due date, priority, and status
+- List tasks with filtering by status and priority
+- Mark a task as complete
+- Delete completed tasks in bulk per project
 ```
 
-You will be prompted for a task description, e.g.:
-
-> "Build a user authentication system with JWT tokens and email verification"
+> **Note:** The plugin prefix `dev-made-easy:` is required when agents are installed via the plugin system. Do not use `/agent "..."` or `@"..."` (with quotes around the full string) — both will fail.
 
 The orchestrator will:
-1. Derive a slug (`user-authentication-system-jwt-tokens`)
-2. Create `docs/specs/user-authentication-system-jwt-tokens/`
-3. Run the full pipeline with two approval gates (after Planning and Development)
-4. Auto-chain Code Review → Testing → Documentation
+1. Derive a slug from your task description (e.g., `task-manager-todo`)
+2. Create `docs/specs/task-manager-todo/` with all planning artifacts
+3. Pause for your review after Planning
+4. Ask you to confirm the technology stack before Development begins
+5. Auto-chain Code Review → Testing → Documentation
 
 ## Artifact Structure
 
