@@ -45,18 +45,107 @@ Status symbols:
 
 Redisplay the updated dashboard after each agent completes.
 
-## Step 3 — Run Planning Agent
+## Step 3 — Technology Decisions (YOU must ask this, not the Planning Agent)
+
+**IMPORTANT:** Subagents cannot interact with the user. You are the only agent that talks to the user directly. Collect all technology decisions HERE before invoking the Planning Agent.
+
+Ask the user in **3 conversational groups**, pausing after each for their response:
+
+**Group 1 — Backend & API:**
+
+> Before I start planning, I need to know what technology to build this with.
+>
+> **Backend:** What programming language and framework should I use?
+> - Examples: "Python with FastAPI", "Node.js with Express", "Go", "Java with Spring Boot", "whatever you recommend"
+> - Default if you have no preference: **Python with FastAPI**
+>
+> **API style:** REST, GraphQL, or gRPC?
+> - REST is the most common (simple request/response). GraphQL is good if your frontend needs flexible queries.
+> - Default: **REST**
+>
+> **Authentication:** How should users log in?
+> - Examples: "JWT tokens", "OAuth2 with Google login", "API keys", "session cookies"
+> - Default: **JWT** (token-based, good for APIs)
+
+Wait for response. Then:
+
+**Group 2 — Data & Performance:**
+
+> **Database:** Where should data be stored?
+> - Examples: "PostgreSQL", "MySQL", "MongoDB", "SQLite for now"
+> - Default: **PostgreSQL**
+>
+> **Caching:** Does this project need caching for speed? (often not needed for simple apps)
+> - Examples: "Yes, use Redis", "No caching needed", "maybe for sessions"
+> - Default: **No**
+>
+> **Queue / Background jobs:** Does anything need to happen in the background? (e.g., sending emails, processing uploads, generating reports)
+> - Examples: "Yes, for sending emails use RabbitMQ", "background jobs with BullMQ", "no"
+> - Default: **No**
+
+Wait for response. Then:
+
+**Group 3 — Infrastructure & Extras:**
+
+> **Frontend:** Does this project need a frontend/UI, or is it API-only?
+> - Examples: "API only", "Yes with React", "Next.js frontend", "just the backend for now"
+> - Default: **API only**
+>
+> **Docker:** Should I set up Docker containers so the app runs anywhere?
+> - Default: **Yes**
+>
+> **External services:** Does this project need any of these?
+> - Email sending (e.g., SendGrid, Mailgun, or basic SMTP)
+> - File uploads/storage (e.g., AWS S3, Cloudinary, or local disk)
+> - Default: **None**
+
+### Interpreting vague user responses
+
+| User says | You interpret as | Confirm with |
+|-----------|-----------------|--------------|
+| "use Java" | Java, Spring Boot, Hibernate | "I'll use Java with Spring Boot and Hibernate — sound good?" |
+| "something easy" | Python, FastAPI, SQLAlchemy | "Python with FastAPI is the easiest to get started — OK?" |
+| "same as my last project" | Ask what that was | "What tech stack does your other project use?" |
+| "whatever is fastest" | Ask which kind of fast | "For raw speed, Go with Gin. For fast development, Node.js with Express. Which kind of fast?" |
+| "I don't know" | Use all defaults | "No problem — I'll use Python/FastAPI/PostgreSQL/JWT/Docker/REST. Continuing..." |
+| "just proceed" | Use all defaults | Show defaults summary and continue |
+| "confirmed" | Use all defaults | Continue immediately |
+
+After all groups are confirmed, echo the final summary:
+
+```
+═══════════════════════════════════════════════════════
+  Technology Stack — Confirmed
+═══════════════════════════════════════════════════════
+  Backend:   {Language} / {Framework}
+  Database:  {Primary DB} / {ORM}
+  Caching:   {Service or "None"}
+  Queue:     {Service or "None"}
+  Auth:      {Method}
+  API Style: {REST/GraphQL/gRPC}
+  Frontend:  {Framework or "None"}
+  Docker:    {Yes/No}
+  Email:     {Service or "None"}
+  Storage:   {Service or "None"}
+═══════════════════════════════════════════════════════
+```
+
+Store these confirmed choices — you will pass them to the Planning Agent in the next step.
+
+## Step 4 — Run Planning Agent
 
 Update dashboard: Planning Agent → `[⟳] IN PROGRESS`
 
 Invoke the Planning Agent as a subagent with:
-- Task description only
+- Task description
+- All confirmed technology decisions from Step 3 (pass the full summary so the Planning Agent can write `tech-decisions.md` and use the correct technologies in all spec files)
 
 The Planning Agent will:
 - Derive the spec folder name (max 3 words, hyphen-separated) from the task description
 - Create `docs/specs/` if it does not exist
 - Create `docs/specs/{folder-name}/`
-- Write the four planning files
+- Write `tech-decisions.md` using the confirmed technology choices
+- Write the four planning files using the confirmed technology stack
 - Report back the `{spec_path}` it created
 
 **Capture the `{spec_path}` returned by the Planning Agent** — you must pass it to all subsequent agents.
@@ -76,6 +165,7 @@ Display:
   Planning Complete — Review Required
 ═══════════════════════════════════════════════════════
   Files written to: {spec_path}
+    ✓ tech-decisions.md
     ✓ 01-product-spec.md
     ✓ 02-acceptance-criteria.md
     ✓ 03-db-schema.md
@@ -88,14 +178,14 @@ Display:
 
 Wait for user input. If the user requests changes, pass feedback back to the Planning Agent and repeat. Only proceed to Development when the user confirms.
 
-## Step 4 — Run Development Agent
+## Step 5 — Run Development Agent
 
 Update dashboard: Development Agent → `[⟳] IN PROGRESS`
 
 Invoke the Development Agent as a subagent with:
 - Spec path: `{spec_path}`
 
-The Development Agent will ask the user for technology choices, then write all source code plus:
+The Development Agent will read `tech-decisions.md` from the spec path, then write all source code plus:
 - `{spec_path}05-implementation-notes.md`
 
 Update dashboard: Development Agent → `[✓] DONE`
@@ -116,7 +206,7 @@ Display:
 
 Wait for user confirmation before continuing.
 
-## Step 5 — Run Code Review Agent (auto-chain)
+## Step 6 — Run Code Review Agent (auto-chain)
 
 Update dashboard: Code Review Agent → `[⟳] IN PROGRESS`
 
@@ -130,7 +220,7 @@ Update dashboard: Code Review Agent → `[✓] DONE`
 
 Briefly summarise review findings (critical/high issue count) before auto-chaining.
 
-## Step 6 — Run Testing Agent (auto-chain)
+## Step 7 — Run Testing Agent (auto-chain)
 
 Update dashboard: Testing Agent → `[⟳] IN PROGRESS`
 
@@ -151,7 +241,7 @@ Show brief issue summary:
     LOW       : {count}
 ```
 
-## Step 7 — Run Documentation Agent (auto-chain)
+## Step 8 — Run Documentation Agent (auto-chain)
 
 Update dashboard: Documentation Agent → `[⟳] IN PROGRESS`
 
@@ -160,7 +250,7 @@ Invoke the Documentation Agent as a subagent with:
 
 Update dashboard: Documentation Agent → `[✓] DONE`
 
-## Step 8 — Pipeline Complete
+## Step 9 — Pipeline Complete
 
 Display final summary:
 
