@@ -25,20 +25,37 @@ Read all files in `{spec_path}` before writing a single line of code:
 
 ## Step 1 — Confirm Technology Choices
 
-Ask the user to confirm or override the following defaults. If the user says "use defaults" or "proceed", apply the default column values.
+**MANDATORY — do not skip this step regardless of how you were invoked.**
 
-| Choice | Default | Common Alternatives |
-|--------|---------|-------------------|
-| Backend Language | Python | Go, Node.js, Java, Ruby |
-| Backend Framework | FastAPI | Django, Flask, Express, Gin, Spring Boot |
-| Frontend Framework | Next.js | React, Vue, None |
-| Primary Database | PostgreSQL | MySQL, MongoDB, SQLite |
-| Caching Layer | Redis | Memcached, None |
-| Authentication | JWT | OAuth2, API Key, Session |
-| Docker Setup | Yes | No |
-| ORM / Query Builder | SQLAlchemy (Python) | Prisma, GORM, Hibernate |
+Before writing any code, display the following assumptions and wait for the user to confirm or override. Do not proceed to Step 2 until the user explicitly responds.
 
-Record the confirmed choices — they drive the project structure and all code patterns.
+Present this message to the user:
+
+---
+
+**Technology Stack — Please confirm or override before I begin**
+
+Here are the defaults I will use. Reply with the number(s) you want to change, or say **"confirmed"** to proceed with all defaults.
+
+| # | Component | Default | Common Alternatives |
+|---|-----------|---------|-------------------|
+| 1 | Backend Language | Python | Go, Node.js, Java, Ruby |
+| 2 | Backend Framework | FastAPI | Django, Flask, Express, Gin, Spring Boot |
+| 3 | Frontend Framework | Next.js | React, Vue, None |
+| 4 | Primary Database | PostgreSQL | MySQL, MongoDB, SQLite |
+| 5 | Caching Layer | Redis | Memcached, None |
+| 6 | Authentication | JWT | OAuth2, API Key, Session |
+| 7 | ORM / Query Builder | SQLAlchemy | Prisma, GORM, Hibernate |
+| 8 | Docker Setup | Yes | No |
+
+Example overrides:
+- `"3: None, 5: None"` — no frontend, no caching
+- `"1: Go, 2: Gin, 7: GORM"` — switch to Go stack
+- `"confirmed"` — use all defaults as shown
+
+---
+
+Wait for the user's response. Apply any overrides they specify, echo back the final confirmed stack, then proceed to Step 2.
 
 ## Step 2 — Project Structure
 
@@ -265,7 +282,74 @@ Write tests alongside each implementation file:
 - Use `pytest` (Python), `jest` (TypeScript), or language equivalent
 - Minimum coverage: one test case per acceptance criterion in `02-acceptance-criteria.md`
 
-## Step 7 — Write Implementation Notes
+## Step 7 — API Documentation
+
+### Swagger / OpenAPI Setup
+
+Configure interactive API documentation for the chosen framework:
+
+| Framework | Swagger Setup |
+|-----------|--------------|
+| FastAPI | Built-in — available at `/docs` (Swagger UI) and `/redoc` (ReDoc). Add `title`, `description`, and `version` to the `FastAPI()` constructor. Tag each router with `tags=["resource-name"]`. |
+| Django REST Framework | Install `drf-spectacular`. Register schema view in `urls.py`. Serve at `/api/schema/swagger-ui/`. |
+| Express / Node.js | Install `swagger-ui-express` and `swagger-jsdoc`. Mount at `/api-docs`. |
+| Spring Boot | Add `springdoc-openapi-ui` dependency. Available at `/swagger-ui.html`. |
+| Gin (Go) | Use `swaggo/gin-swagger`. Annotate handlers with `// @Summary`, `// @Tags`, etc. |
+
+Ensure every endpoint has:
+- A summary and description
+- All request parameters documented
+- All response codes and schemas documented
+- Authentication requirements noted (e.g., `Bearer token required`)
+
+### api_usage.md
+
+Create `{spec_path}/api_usage.md` with one working `curl` example per endpoint defined in `04-api-contracts.md`. Use realistic but synthetic values — never real credentials or production data. Group examples by resource.
+
+Template:
+
+```markdown
+# API Usage Examples
+
+Base URL: `http://localhost:8000/api/v1`
+
+> Replace `YOUR_TOKEN` with a valid JWT from the `/auth/login` endpoint.
+
+## Authentication
+
+### POST /auth/login
+\`\`\`bash
+curl -X POST http://localhost:8000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "SecurePass123!"
+  }'
+\`\`\`
+
+## {Resource Name}
+
+### GET /{resource}
+\`\`\`bash
+curl -X GET http://localhost:8000/api/v1/{resource} \
+  -H "Authorization: Bearer YOUR_TOKEN"
+\`\`\`
+
+### POST /{resource}
+\`\`\`bash
+curl -X POST http://localhost:8000/api/v1/{resource} \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "field1": "value1",
+    "field2": "value2"
+  }'
+\`\`\`
+```
+
+Generate a curl for **every** endpoint. Add a brief expected response comment where it aids clarity.
+
+## Step 8 — Write Implementation Notes
 
 Write `{spec_path}/05-implementation-notes.md`:
 
@@ -331,11 +415,13 @@ http://localhost:8000/docs
 
 ## Completion
 
-After writing all code and the implementation notes file, report back:
+After writing all code and documentation files, report back:
 
 1. Files and directories created (summary)
 2. Technology stack confirmed
 3. Factory pattern implementation summary
 4. Estimated test coverage achieved
-5. Any deviations from the planning spec with justification
-6. Specific items the Code Review Agent should pay attention to
+5. Swagger UI URL (e.g., `http://localhost:8000/docs`)
+6. `api_usage.md` location and number of curl examples generated
+7. Any deviations from the planning spec with justification
+8. Specific items the Code Review Agent should pay attention to
