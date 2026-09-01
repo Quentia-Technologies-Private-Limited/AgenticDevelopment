@@ -262,30 +262,47 @@ All agents use `claude-opus-4-6` by default. To switch models, edit the `model:`
 
 ## Updating the Plugin
 
-When new agent versions are pushed to the repository, run these 3 steps to pick up the changes:
+When new agent versions are pushed to the repository, run these 4 steps to pick up the changes:
 
 ```bash
 # 1. Pull latest from GitHub into your local clone
 cd ~/.claude/skills/agentic-development && git pull
 
-# 2. Refresh the plugin cache
+# 2. Force-clear the plugin cache (IMPORTANT — claude plugin update alone is unreliable)
+cp ~/.claude/skills/agentic-development/dev-made-easy/agents/*.md \
+   ~/.claude/plugins/cache/agentic-development/dev-made-easy/1.0.0/agents/
+
+# 3. Also run the official update command (for metadata/manifest changes)
 claude plugin update dev-made-easy@agentic-development
 ```
 
 Then inside your Claude Code session:
 
 ```
-# 3. Reload plugins to activate
+# 4. Reload plugins to activate
 /reload-plugins
 ```
 
-**Why 3 steps?**
+**Why 4 steps?**
 
 | Step | What it does | Without it |
 |------|-------------|------------|
 | `git pull` | Updates the local clone from GitHub | Local clone still has old agent files |
-| `plugin update` | Copies updated files into the plugin cache | Cache still has the old version |
+| `cp ... agents/` | Force-copies agent files into the plugin cache | **Cache keeps stale agents** even after `plugin update` |
+| `plugin update` | Updates plugin metadata and manifest | Manifest may be out of date |
 | `/reload-plugins` | Loads the updated cache into the active session | Session still runs old agents |
+
+> **Why is step 2 needed?** `claude plugin update` does not always copy updated agent files into the plugin cache at `~/.claude/plugins/cache/`. The `cp` command guarantees the cache has the latest agents. This is a known workaround.
+
+### Verify the update worked
+
+After completing all 4 steps, verify the cache matches the source:
+
+```bash
+# Should produce no output (no differences)
+diff ~/.claude/skills/agentic-development/dev-made-easy/agents/00-orchestrator.md \
+     ~/.claude/plugins/cache/agentic-development/dev-made-easy/1.0.0/agents/00-orchestrator.md
+```
 
 > You never need to uninstall/reinstall unless `marketplace.json` or `plugin.json` structure changes.
 

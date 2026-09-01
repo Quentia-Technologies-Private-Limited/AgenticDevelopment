@@ -6,6 +6,7 @@
 #   bash install.sh --local                     Install agents in current project (.claude/agents/)
 #   bash install.sh --path /path/to/other/repo  Install agents into a different repository
 #   bash install.sh                             Interactive prompt (choose 1, 2, or 3)
+#   bash install.sh --update-cache                Force-sync agents into the plugin cache
 #   bash install.sh --uninstall --global
 #   bash install.sh --uninstall --local
 #   bash install.sh --uninstall --path /path/to/other/repo
@@ -150,7 +151,7 @@ install_agents() {
   echo ""
   echo "Start the pipeline in Claude Code:"
   echo ""
-  echo '  /agent "Development Orchestrator"'
+  echo '  @dev-made-easy:Development Orchestrator'
   echo ""
 }
 
@@ -193,6 +194,63 @@ uninstall_agents() {
   print_success "$count agents removed."
 }
 
+update_cache() {
+  local cache_dir="$HOME/.claude/plugins/cache/agentic-development/dev-made-easy"
+
+  # Find the versioned cache directory (e.g., 1.0.0/)
+  if [[ ! -d "$cache_dir" ]]; then
+    print_error "Plugin cache not found at: $cache_dir"
+    print_error "Install the plugin first: claude plugin install dev-made-easy@agentic-development --scope user"
+    exit 1
+  fi
+
+  local version_dir
+  version_dir=$(find "$cache_dir" -mindepth 1 -maxdepth 1 -type d | head -1)
+
+  if [[ -z "$version_dir" || ! -d "$version_dir/agents" ]]; then
+    print_error "No versioned cache directory found under: $cache_dir"
+    exit 1
+  fi
+
+  echo "Force-syncing agents to plugin cache..."
+  echo "  Source: $AGENTS_SRC/"
+  echo "  Target: $version_dir/agents/"
+  echo ""
+
+  local count=0
+  for agent_file in "$AGENTS_SRC"/*.md; do
+    filename="$(basename "$agent_file")"
+    cp "$agent_file" "$version_dir/agents/$filename"
+    print_success "Synced: $filename"
+    ((count++))
+  done
+
+  echo ""
+  echo "================================================="
+  print_success "$count agents synced to plugin cache"
+  echo "================================================="
+  echo ""
+  echo "Now run /reload-plugins inside your Claude Code session."
+  echo ""
+
+  # Verify
+  local mismatches=0
+  for agent_file in "$AGENTS_SRC"/*.md; do
+    filename="$(basename "$agent_file")"
+    if ! diff -q "$agent_file" "$version_dir/agents/$filename" &>/dev/null; then
+      print_error "MISMATCH: $filename"
+      ((mismatches++))
+    fi
+  done
+
+  if [[ "$mismatches" -eq 0 ]]; then
+    print_success "Verification passed — all agents match"
+  else
+    print_error "$mismatches file(s) did not match after copy"
+    exit 1
+  fi
+}
+
 main() {
   print_header
 
@@ -200,6 +258,11 @@ main() {
 
   if [[ "$mode" == "--uninstall" ]]; then
     uninstall_agents "${2:-}" "${3:-}"
+    exit 0
+  fi
+
+  if [[ "$mode" == "--update-cache" ]]; then
+    update_cache
     exit 0
   fi
 
