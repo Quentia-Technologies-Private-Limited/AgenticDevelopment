@@ -5,14 +5,16 @@ A multi-agent development pipeline for Claude Code. Takes a task description fro
 ## What It Does
 
 ```
-Orchestrator → Planning → [YOUR REVIEW] → Development → [YOUR REVIEW]
+Orchestrator → Planning Phase 1 → [TECH DECISIONS] → Planning Phase 2
+            → [YOUR REVIEW] → Development → [YOUR REVIEW]
             → Code Review → Testing → Documentation
 ```
 
 | Agent | Role | Output |
 |-------|------|--------|
-| Orchestrator | Coordinates pipeline, shows live status | Status dashboard |
-| Planning | Product spec, DB schema, API contracts, acceptance criteria | `docs/specs/{task}/` |
+| Orchestrator | Coordinates pipeline, collects tech decisions, shows live status | Status dashboard |
+| Planning (Phase 1) | System analysis, product spec, acceptance criteria | `00-technical-analysis.md`, `01-product-spec.md`, `02-acceptance-criteria.md` |
+| Planning (Phase 2) | DB schema, API contracts using confirmed tech stack | `tech-decisions.md`, `03-db-schema.md`, `04-api-contracts.md` |
 | Development | Implements code with OOP/Factory Pattern | Source code + implementation notes |
 | Code Review | Reviews against spec, security, quality | `06-review-report.md` |
 | Testing | Tests against acceptance criteria, triages issues | `issues/issue-NNN.md` per bug |
@@ -197,10 +199,12 @@ Every task produces:
 
 ```
 docs/specs/{task_title}/
-├── 01-product-spec.md
-├── 02-acceptance-criteria.md
-├── 03-db-schema.md
-├── 04-api-contracts.md
+├── 00-technical-analysis.md    ← Phase 1: system analysis for tech recommendations
+├── 01-product-spec.md          ← Phase 1: product spec and user stories
+├── 02-acceptance-criteria.md   ← Phase 1: Given/When/Then acceptance criteria
+├── tech-decisions.md           ← Phase 2: confirmed technology choices
+├── 03-db-schema.md             ← Phase 2: database schema using confirmed tech
+├── 04-api-contracts.md         ← Phase 2: API contracts using confirmed tech
 ├── 05-implementation-notes.md
 ├── 06-review-report.md
 └── issues/
@@ -208,9 +212,9 @@ docs/specs/{task_title}/
     └── issue-002.md
 ```
 
-## Technology Defaults
+## Technology Decisions
 
-You can override any of these when the Development Agent prompts you:
+The Orchestrator asks you about technology choices **after** the Planning Agent analyzes your system requirements. This means recommendations are informed by your actual needs — not generic defaults.
 
 | Layer | Default |
 |-------|---------|

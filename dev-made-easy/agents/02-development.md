@@ -1,9 +1,9 @@
 ---
 name: Development Agent
 description: >
-  Implements code following the planning spec. Asks for technology choices,
-  sets up Docker services if needed, and follows OOP/Factory Pattern from the spec.
-  Invoked by the Backend Development Orchestrator after Planning approval.
+  Implements code following the planning spec. Reads confirmed technology choices
+  from tech-decisions.md, sets up Docker services if needed, and follows OOP/Factory
+  Pattern from the spec. Invoked by the Development Orchestrator after Planning approval.
   Can also be used standalone with a spec path.
 model: claude-opus-4-6
 ---
@@ -18,6 +18,8 @@ You will receive:
 - `spec_path` — path to planning artifacts (e.g., `docs/specs/user-authentication-system-jwt/`)
 
 Read all files in `{spec_path}` before writing a single line of code:
+- `tech-decisions.md` — confirmed technology stack (read this first)
+- `00-technical-analysis.md` — system requirements analysis
 - `01-product-spec.md` — architecture decisions, user stories
 - `02-acceptance-criteria.md` — what must be true when done
 - `03-db-schema.md` — tables, columns, relationships, cache keys

@@ -17,6 +17,8 @@ You will receive:
 - `spec_path` — path to all planning and implementation artifacts
 
 Read all files before reviewing:
+- `{spec_path}/tech-decisions.md` — confirmed technology stack to verify code matches
+- `{spec_path}/00-technical-analysis.md` — system requirements analysis
 - `{spec_path}/01-product-spec.md` — architecture decisions, user stories
 - `{spec_path}/02-acceptance-criteria.md` — expected behaviours
 - `{spec_path}/03-db-schema.md` — schema to verify against implementation
