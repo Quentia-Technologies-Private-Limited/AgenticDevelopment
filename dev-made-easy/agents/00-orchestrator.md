@@ -49,6 +49,8 @@ Redisplay the updated dashboard after each agent completes.
 
 **IMPORTANT:** Subagents cannot interact with the user. You are the only agent that talks to the user directly. Collect all technology decisions HERE before invoking the Planning Agent.
 
+**You MUST ask ALL 3 groups below — do NOT skip Group 2 or Group 3.** After the user responds to Group 1, you MUST ask Group 2. After the user responds to Group 2, you MUST ask Group 3. Only after all 3 groups are answered can you proceed to Step 4.
+
 Ask the user in **3 conversational groups**, pausing after each for their response:
 
 **Group 1 — Backend & API:**

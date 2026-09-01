@@ -256,6 +256,35 @@ All agents use `claude-opus-4-6` by default. To switch models, edit the `model:`
 | `agents/04-testing.md` | Testing Agent |
 | `agents/05-documentation.md` | Documentation Agent |
 
+## Updating the Plugin
+
+When new agent versions are pushed to the repository, run these 3 steps to pick up the changes:
+
+```bash
+# 1. Pull latest from GitHub into your local clone
+cd ~/.claude/skills/agentic-development && git pull
+
+# 2. Refresh the plugin cache
+claude plugin update dev-made-easy@agentic-development
+```
+
+Then inside your Claude Code session:
+
+```
+# 3. Reload plugins to activate
+/reload-plugins
+```
+
+**Why 3 steps?**
+
+| Step | What it does | Without it |
+|------|-------------|------------|
+| `git pull` | Updates the local clone from GitHub | Local clone still has old agent files |
+| `plugin update` | Copies updated files into the plugin cache | Cache still has the old version |
+| `/reload-plugins` | Loads the updated cache into the active session | Session still runs old agents |
+
+> You never need to uninstall/reinstall unless `marketplace.json` or `plugin.json` structure changes.
+
 ## Uninstallation
 
 ### Claude Code plugin uninstall (if installed via plugin system)
