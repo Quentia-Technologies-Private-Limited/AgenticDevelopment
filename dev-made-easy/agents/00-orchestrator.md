@@ -160,6 +160,8 @@ Ask the user in 3 groups. After each group, STOP and WAIT for the user to reply.
 
 ### After all 3 groups answered
 
+**Auto-add Swagger/OpenAPI:** If Frontend is "None" (backend-only project), automatically add `API Docs: Swagger/OpenAPI` to the confirmed stack. Do not ask — just include it and mention it in the summary.
+
 Show the confirmed summary:
 
 ```
@@ -173,6 +175,7 @@ Show the confirmed summary:
   Auth:      {Method}
   API Style: {REST/GraphQL/gRPC}
   Frontend:  {Framework or "None"}
+  API Docs:  {Swagger/OpenAPI if backend-only, or "N/A"}
   Docker:    {Yes/No}
 ═══════════════════════════════════════════════════════
 ```

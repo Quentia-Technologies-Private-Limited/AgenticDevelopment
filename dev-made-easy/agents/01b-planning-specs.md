@@ -72,6 +72,10 @@ Record the confirmed technology choices:
 ## API Style
 - Type: {confirmed}
 
+## API Documentation
+- Swagger/OpenAPI: {Yes if backend-only (no frontend), otherwise N/A}
+- Swagger UI Path: {e.g. /docs, /swagger-ui.html, /api-docs — framework-dependent}
+
 ## Infrastructure
 - Docker: {Yes/No}
 ```

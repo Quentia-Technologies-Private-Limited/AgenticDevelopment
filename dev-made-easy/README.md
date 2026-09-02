@@ -5,20 +5,22 @@ A multi-agent development pipeline for Claude Code. Takes a task description fro
 ## What It Does
 
 ```
-Orchestrator → Planning Phase 1 → [TECH DECISIONS] → Planning Phase 2
+Orchestrator → Planning Analysis Agent → [TECH DECISIONS] → Planning Specs Agent
             → [YOUR REVIEW] → Development → [YOUR REVIEW]
             → Code Review → Testing → Documentation
 ```
 
+The pipeline has 7 steps. The Orchestrator coordinates everything and is the only agent that talks to you.
+
 | Agent | Role | Output |
 |-------|------|--------|
-| Orchestrator | Coordinates pipeline, collects tech decisions, shows live status | Status dashboard |
-| Planning (Phase 1) | System analysis, product spec, acceptance criteria | `00-technical-analysis.md`, `01-product-spec.md`, `02-acceptance-criteria.md` |
-| Planning (Phase 2) | DB schema, API contracts using confirmed tech stack | `tech-decisions.md`, `03-db-schema.md`, `04-api-contracts.md` |
-| Development | Implements code with OOP/Factory Pattern | Source code + implementation notes |
-| Code Review | Reviews against spec, security, quality | `06-review-report.md` |
-| Testing | Tests against acceptance criteria, triages issues | `issues/issue-NNN.md` per bug |
-| Documentation | README, API docs, CHANGELOG, docstrings | Project documentation |
+| Development Orchestrator | Coordinates 7-step pipeline, asks tech questions, shows live status | Status dashboard |
+| Planning Analysis Agent | System analysis, product spec, acceptance criteria (tech-independent) | `00-technical-analysis.md`, `01-product-spec.md`, `02-acceptance-criteria.md` |
+| Planning Specs Agent | DB schema, API contracts using confirmed tech stack (tech-dependent) | `tech-decisions.md`, `03-db-schema.md`, `04-api-contracts.md` |
+| Development Agent | Implements code with OOP/Factory Pattern | Source code + implementation notes |
+| Code Review Agent | Reviews against spec, security, quality | `06-review-report.md` |
+| Testing Agent | Tests against acceptance criteria, triages issues | `issues/issue-NNN.md` per bug |
+| Documentation Agent | README, API docs, CHANGELOG, docstrings | Project documentation |
 
 ## How the Plugin Works
 
@@ -34,8 +36,9 @@ dev-made-easy/               ← this repo IS the plugin
 │   ├── plugin.json          ← official Claude Code plugin manifest
 │   └── marketplace.json     ← marketplace manifest for plugin distribution
 ├── agents/
-│   ├── 00-orchestrator.md   ← each .md file is one agent
-│   ├── 01-planning.md
+│   ├── 00-orchestrator.md          ← coordinates the 7-step pipeline
+│   ├── 01a-planning-analysis.md    ← Phase 1: tech-independent analysis
+│   ├── 01b-planning-specs.md       ← Phase 2: tech-dependent specs
 │   ├── 02-development.md
 │   ├── 03-code-review.md
 │   ├── 04-testing.md
@@ -187,11 +190,11 @@ Core Features:
 > **Note:** The plugin prefix `dev-made-easy:` is required when agents are installed via the plugin system. Do not use `/agent "..."` or `@"..."` (with quotes around the full string) — both will fail.
 
 The orchestrator will:
-1. Derive a slug from your task description (e.g., `task-manager-todo`)
-2. Create `docs/specs/task-manager-todo/` with all planning artifacts
-3. Pause for your review after Planning
-4. Ask you to confirm the technology stack before Development begins
-5. Auto-chain Code Review → Testing → Documentation
+1. Run the **Planning Analysis Agent** — produces technical analysis, product spec, and acceptance criteria
+2. Ask you **3 groups of technology questions** informed by the analysis (backend, data, infrastructure)
+3. Run the **Planning Specs Agent** — produces tech-decisions, db schema, and API contracts using your confirmed choices
+4. Pause for your review of all planning artifacts
+5. Run Development (pauses for review), then auto-chain Code Review → Testing → Documentation
 
 ## Artifact Structure
 
@@ -214,7 +217,7 @@ docs/specs/{task_title}/
 
 ## Technology Decisions
 
-The Orchestrator asks you about technology choices **after** the Planning Agent analyzes your system requirements. This means recommendations are informed by your actual needs — not generic defaults.
+The Orchestrator asks you about technology choices **after** the Planning Analysis Agent analyzes your system requirements. This means recommendations are informed by your actual needs — not generic defaults. The defaults below are only used if you say "defaults" or "I don't know":
 
 | Layer | Default |
 |-------|---------|
@@ -251,14 +254,15 @@ All agents use `claude-opus-4-6` by default. To switch models, edit the `model:`
 
 ## Agent Files
 
-| File | Agent Name |
-|------|-----------|
-| `agents/00-orchestrator.md` | Development Orchestrator |
-| `agents/01-planning.md` | Planning Agent |
-| `agents/02-development.md` | Development Agent |
-| `agents/03-code-review.md` | Code Review Agent |
-| `agents/04-testing.md` | Testing Agent |
-| `agents/05-documentation.md` | Documentation Agent |
+| File | Agent Name | Pipeline Step |
+|------|-----------|---------------|
+| `agents/00-orchestrator.md` | Development Orchestrator | Coordinates all 7 steps |
+| `agents/01a-planning-analysis.md` | Planning Analysis Agent | Step 1: tech-independent analysis |
+| `agents/01b-planning-specs.md` | Planning Specs Agent | Step 3: tech-dependent specs |
+| `agents/02-development.md` | Development Agent | Step 4: implementation |
+| `agents/03-code-review.md` | Code Review Agent | Step 5: code review |
+| `agents/04-testing.md` | Testing Agent | Step 6: testing |
+| `agents/05-documentation.md` | Documentation Agent | Step 7: documentation |
 
 ## Updating the Plugin
 
