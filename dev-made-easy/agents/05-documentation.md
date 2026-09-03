@@ -24,6 +24,20 @@ Read before writing documentation:
 - `{spec_path}/05-implementation-notes.md` — tech stack, project structure, run commands
 - All source code files — for accurate docstrings and structure tree
 
+## Mode Detection
+
+Check if `{spec_path}/00-codebase-profile.md` exists. If it does, you are in **Feature Addition mode**.
+
+### Feature Addition — Update Instead of Create
+
+In Feature Addition mode, do NOT overwrite existing documentation. Instead:
+- **README.md**: Read the existing README first. ADD the new feature to the features list, add new endpoints to the API section, add new environment variables if any. Preserve everything else.
+- **docs/API.md**: Read the existing API docs first. ADD new or modified endpoints only. Do not remove or rewrite existing endpoint documentation.
+- **CHANGELOG.md**: Read the existing changelog first. ADD a new version entry at the top for this feature. Do not modify existing entries.
+- **Docstrings**: Add docstrings to NEW code only. Do not modify existing docstrings unless the feature changed the behavior of an existing method.
+
+If `00-codebase-profile.md` does NOT exist, you are in **Greenfield mode** — create all documentation from scratch (default behavior below).
+
 ## Output Files
 
 ### 1. `README.md` (project root)

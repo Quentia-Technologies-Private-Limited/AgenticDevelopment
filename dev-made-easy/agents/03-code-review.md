@@ -26,6 +26,23 @@ Read all files before reviewing:
 - `{spec_path}/05-implementation-notes.md` — tech stack and design decisions
 - All source code files in the project
 
+## Mode Detection
+
+Check if `{spec_path}/00-codebase-profile.md` exists. If it does, you are in **Feature Addition mode**.
+
+### Feature Addition — Additional Review Checks
+
+In Feature Addition mode, add these checks to EVERY review category:
+
+- **Codebase Consistency**: New code follows the existing project's architecture patterns, naming conventions, and folder structure as documented in `00-codebase-profile.md`
+- **Minimal Footprint**: No unnecessary changes to existing files — only modifications required by the feature spec
+- **Incremental Migrations**: Database changes use the existing migration tool and are incremental (ALTER TABLE, new tables) — not full schema rewrites
+- **API Consistency**: New endpoints follow the existing API conventions (response format, auth pattern, versioning)
+- **Import Style**: New code uses the same import/module patterns as existing code
+- **Test Placement**: New tests are placed in the correct directories per the existing test structure
+
+Flag any violation of these as HIGH severity.
+
 ## Review Checklist
 
 Work through every category below. Record every finding — do not skip anything.

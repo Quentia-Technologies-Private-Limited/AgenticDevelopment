@@ -25,6 +25,35 @@ Read all files in `{spec_path}` before writing a single line of code:
 - `03-db-schema.md` — tables, columns, relationships, cache keys
 - `04-api-contracts.md` — endpoints, request/response shapes
 
+## Mode Detection
+
+Check if `{spec_path}/00-codebase-profile.md` exists. If it does, you are in **Feature Addition mode**.
+
+### Feature Addition Rules
+
+When in Feature Addition mode, you MUST:
+- Read `00-codebase-profile.md` FIRST to understand the existing project's structure, patterns, and conventions
+- **Follow existing patterns**: Use the same architecture pattern (repository, service, factory, controller, component-based) as the existing codebase
+- **Follow existing naming**: Match file casing, method naming, and class naming conventions already in use
+- **Place code correctly**: Add new files in the locations specified in the codebase profile's "Entry Points for New Code" section
+- **Use existing infrastructure**: Reuse the existing database connection, auth middleware, test setup — do not recreate them
+- **Create migrations, not schemas**: For database changes, create migration files using the existing migration tool — do not write full schema definitions
+- **Do NOT restructure**: Do not refactor, rename, or reorganize existing code unless the spec explicitly requires it
+- **Match coding style**: Use the same indentation, import style, error handling patterns, and module structure as existing code
+
+If `00-codebase-profile.md` does NOT exist, you are in **Greenfield mode** — scaffold the full project from scratch (default behavior below).
+
+## Step 0 — Read Codebase Graph (if available)
+
+Check if `codebase-graph.json` exists in the project root. If it does, read it before writing any code. Use it to:
+
+- **Identify dependency chains**: Before creating a new service, query the graph to find how existing services are wired (factory → service → repository → table)
+- **Find related files**: Look up nodes connected to entities you need to modify or extend
+- **Follow established patterns**: Check `observations` on existing nodes to match conventions (e.g., "created via ServiceFactory")
+- **Place code correctly**: Use `layer` values on existing nodes to determine where new code belongs
+
+If the graph does not exist (e.g., first Greenfield run), skip this step — the graph will be created post-pipeline.
+
 ## Step 1 — Read Technology Decisions
 
 Read `{spec_path}/tech-decisions.md`. This file was created and confirmed by the user during the Planning phase. Do not ask the user again — all technology decisions are already recorded there.

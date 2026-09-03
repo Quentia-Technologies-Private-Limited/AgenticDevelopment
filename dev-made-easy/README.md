@@ -1,8 +1,12 @@
 # dev-made-easy
 
-A multi-agent development pipeline for Claude Code. Takes a task description from planning through implementation, code review, testing, and documentation — producing structured artifacts at every stage.
+A multi-agent development pipeline for Claude Code. Supports two modes: **Greenfield** (new projects) and **Feature Addition** (existing projects). Takes a task description from planning through implementation, code review, testing, and documentation — producing structured artifacts at every stage.
 
 ## What It Does
+
+The Orchestrator asks you upfront: **new project** or **feature addition**?
+
+### Greenfield Mode (New Project — 7 steps)
 
 ```
 Orchestrator → Planning Analysis Agent → [TECH DECISIONS] → Planning Specs Agent
@@ -10,17 +14,28 @@ Orchestrator → Planning Analysis Agent → [TECH DECISIONS] → Planning Specs
             → Code Review → Testing → Documentation
 ```
 
-The pipeline has 7 steps. The Orchestrator coordinates everything and is the only agent that talks to you.
+### Feature Addition Mode (Existing Project — 8 steps)
+
+```
+Orchestrator → Codebase Analysis Agent → Planning Analysis Agent → [TECH GAP ANALYSIS]
+            → Planning Specs Agent → [YOUR REVIEW] → Development → [YOUR REVIEW]
+            → Code Review → Testing → Documentation
+```
+
+In Feature Addition mode, the pipeline first scans your existing codebase, then plans the feature in context, only asks about tech gaps (not the full stack), and ensures all new code follows your existing patterns.
 
 | Agent | Role | Output |
 |-------|------|--------|
-| Development Orchestrator | Coordinates 7-step pipeline, asks tech questions, shows live status | Status dashboard |
+| Development Orchestrator | Router: determines new vs. existing project, dispatches to correct pipeline | — |
+| Greenfield Orchestrator | Coordinates 7-step pipeline for new projects, asks tech questions | Status dashboard |
+| Feature Addition Orchestrator | Coordinates 8-step pipeline for existing projects, does tech gap analysis | Status dashboard |
+| Codebase Analysis Agent | Scans existing project: tech stack, patterns, schema, API, tests (Feature Addition only) | `00-codebase-profile.md` |
 | Planning Analysis Agent | System analysis, product spec, acceptance criteria (tech-independent) | `00-technical-analysis.md`, `01-product-spec.md`, `02-acceptance-criteria.md` |
 | Planning Specs Agent | DB schema, API contracts using confirmed tech stack (tech-dependent) | `tech-decisions.md`, `03-db-schema.md`, `04-api-contracts.md` |
-| Development Agent | Implements code with OOP/Factory Pattern | Source code + implementation notes |
-| Code Review Agent | Reviews against spec, security, quality | `06-review-report.md` |
+| Development Agent | Implements code, follows existing patterns in Feature Addition mode | Source code + implementation notes |
+| Code Review Agent | Reviews against spec, security, quality, and codebase consistency | `06-review-report.md` |
 | Testing Agent | Tests against acceptance criteria, triages issues | `issues/issue-NNN.md` per bug |
-| Documentation Agent | README, API docs, CHANGELOG, docstrings | Project documentation |
+| Documentation Agent | README, API docs, CHANGELOG, docstrings (updates existing docs in Feature Addition) | Project documentation |
 
 ## How the Plugin Works
 
@@ -36,7 +51,10 @@ dev-made-easy/               ← this repo IS the plugin
 │   ├── plugin.json          ← official Claude Code plugin manifest
 │   └── marketplace.json     ← marketplace manifest for plugin distribution
 ├── agents/
-│   ├── 00-orchestrator.md          ← coordinates the 7-step pipeline
+│   ├── 00-orchestrator.md          ← smart router: asks new vs. existing, dispatches
+│   ├── 00a-orchestrator-greenfield.md  ← Greenfield pipeline (7 steps)
+│   ├── 00b-orchestrator-feature.md     ← Feature Addition pipeline (8 steps)
+│   ├── 01-codebase-analysis.md     ← scans existing project (Feature Addition only)
 │   ├── 01a-planning-analysis.md    ← Phase 1: tech-independent analysis
 │   ├── 01b-planning-specs.md       ← Phase 2: tech-dependent specs
 │   ├── 02-development.md
@@ -189,25 +207,55 @@ Core Features:
 
 > **Note:** The plugin prefix `dev-made-easy:` is required when agents are installed via the plugin system. Do not use `/agent "..."` or `@"..."` (with quotes around the full string) — both will fail.
 
-The orchestrator will:
+The orchestrator will first ask: **new project or feature addition?**
+
+**Greenfield** (new project):
 1. Run the **Planning Analysis Agent** — produces technical analysis, product spec, and acceptance criteria
 2. Ask you **3 groups of technology questions** informed by the analysis (backend, data, infrastructure)
 3. Run the **Planning Specs Agent** — produces tech-decisions, db schema, and API contracts using your confirmed choices
 4. Pause for your review of all planning artifacts
 5. Run Development (pauses for review), then auto-chain Code Review → Testing → Documentation
 
+**Feature Addition** (existing project):
+1. Run the **Codebase Analysis Agent** — scans your project for tech stack, patterns, schema, API, tests
+2. Run the **Planning Analysis Agent** — plans the feature in context of the existing codebase
+3. **Tech Gap Analysis** — compares what exists vs. what the feature needs, only asks about gaps
+4. Run the **Planning Specs Agent** — produces incremental schema changes and new API endpoints only
+5. Pause for your review of all planning artifacts
+6. Run Development (follows existing patterns, pauses for review), then auto-chain Code Review → Testing → Documentation
+
 ## Artifact Structure
 
-Every task produces:
+Every task produces artifacts in `docs/specs/{task_title}/`:
+
+### Greenfield Mode
 
 ```
 docs/specs/{task_title}/
-├── 00-technical-analysis.md    ← Phase 1: system analysis for tech recommendations
-├── 01-product-spec.md          ← Phase 1: product spec and user stories
-├── 02-acceptance-criteria.md   ← Phase 1: Given/When/Then acceptance criteria
-├── tech-decisions.md           ← Phase 2: confirmed technology choices
-├── 03-db-schema.md             ← Phase 2: database schema using confirmed tech
-├── 04-api-contracts.md         ← Phase 2: API contracts using confirmed tech
+├── 00-technical-analysis.md    ← system analysis for tech recommendations
+├── 01-product-spec.md          ← product spec and user stories
+├── 02-acceptance-criteria.md   ← Given/When/Then acceptance criteria
+├── tech-decisions.md           ← confirmed technology choices
+├── 03-db-schema.md             ← full database schema
+├── 04-api-contracts.md         ← full API contracts
+├── 05-implementation-notes.md
+├── 06-review-report.md
+└── issues/
+    ├── issue-001.md
+    └── issue-002.md
+```
+
+### Feature Addition Mode
+
+```
+docs/specs/{feature_name}/
+├── 00-codebase-profile.md     ← existing project analysis (tech, patterns, schema, API)
+├── 00-technical-analysis.md    ← feature analysis referencing existing codebase
+├── 01-product-spec.md          ← feature-scoped product spec
+├── 02-acceptance-criteria.md   ← feature-scoped acceptance criteria
+├── tech-decisions.md           ← full stack (existing + new, marked)
+├── 03-db-schema.md             ← incremental schema changes only
+├── 04-api-contracts.md         ← new/modified endpoints only
 ├── 05-implementation-notes.md
 ├── 06-review-report.md
 └── issues/
@@ -254,15 +302,18 @@ All agents use `claude-opus-4-6` by default. To switch models, edit the `model:`
 
 ## Agent Files
 
-| File | Agent Name | Pipeline Step |
-|------|-----------|---------------|
-| `agents/00-orchestrator.md` | Development Orchestrator | Coordinates all 7 steps |
-| `agents/01a-planning-analysis.md` | Planning Analysis Agent | Step 1: tech-independent analysis |
-| `agents/01b-planning-specs.md` | Planning Specs Agent | Step 3: tech-dependent specs |
-| `agents/02-development.md` | Development Agent | Step 4: implementation |
-| `agents/03-code-review.md` | Code Review Agent | Step 5: code review |
-| `agents/04-testing.md` | Testing Agent | Step 6: testing |
-| `agents/05-documentation.md` | Documentation Agent | Step 7: documentation |
+| File | Agent Name | Role |
+|------|-----------|------|
+| `agents/00-orchestrator.md` | Development Orchestrator | Router: asks new vs. existing, dispatches to correct pipeline |
+| `agents/00a-orchestrator-greenfield.md` | Greenfield Orchestrator | Greenfield pipeline (7 steps) |
+| `agents/00b-orchestrator-feature.md` | Feature Addition Orchestrator | Feature Addition pipeline (8 steps) |
+| `agents/01-codebase-analysis.md` | Codebase Analysis Agent | Feature Addition Step 1: scans existing project |
+| `agents/01a-planning-analysis.md` | Planning Analysis Agent | Greenfield Step 1 / Feature Addition Step 2: tech-independent analysis |
+| `agents/01b-planning-specs.md` | Planning Specs Agent | Greenfield Step 3 / Feature Addition Step 4: tech-dependent specs |
+| `agents/02-development.md` | Development Agent | Greenfield Step 4 / Feature Addition Step 5: implementation |
+| `agents/03-code-review.md` | Code Review Agent | Greenfield Step 5 / Feature Addition Step 6: code review |
+| `agents/04-testing.md` | Testing Agent | Greenfield Step 6 / Feature Addition Step 7: testing |
+| `agents/05-documentation.md` | Documentation Agent | Greenfield Step 7 / Feature Addition Step 8: documentation |
 
 ## Updating the Plugin
 
@@ -344,6 +395,12 @@ bash install.sh --uninstall --global         # remove from ~/.claude/agents/
 bash install.sh --uninstall --local          # remove from .claude/agents/ in current project
 bash install.sh --uninstall --path /path/to/repo  # remove from a specific repo
 ```
+
+### How to create a new vertical (custom pipeline)
+
+Want to add a pipeline for a different domain (Design, Data Engineering, DevOps, Mobile)?
+
+See **[docs/README.md](./docs/AddUrOwnOrchestrator.md)** — a step-by-step guide with templates for creating your own orchestrator and subagents, registering with the router, and testing.
 
 ### How to create or extend your own plugin
 
