@@ -29,13 +29,13 @@ If you find yourself about to create any of those files, STOP. You are doing it 
 
 - `task_description` — what needs to be built
 - (Optional) `spec_path` — if provided, the spec folder already exists (Feature Addition mode)
-- (Optional) `codebase_profile` — if the prompt mentions a codebase profile at `{spec_path}/00-codebase-profile.md`, this is a Feature Addition. Read it before planning.
+- (Optional) `codebase_profile` — if the prompt mentions a codebase profile at `docs/codebase/00-codebase-analysis.md`, this is a Feature Addition. Read it before planning.
 
 ## Mode Detection
 
-If the Orchestrator's prompt mentions "Feature Addition" or "existing project" or references a `00-codebase-profile.md`, you are in **Feature Addition mode**. In this mode:
+If the Orchestrator's prompt mentions "Feature Addition" or "existing project" or references a `00-codebase-analysis.md`, you are in **Feature Addition mode**. In this mode:
 - The spec folder already exists — do NOT create it
-- Read `00-codebase-profile.md` FIRST to understand the existing codebase
+- Read `docs/codebase/00-codebase-analysis.md` FIRST to understand the existing codebase
 - Scope all documents to the NEW FEATURE, not the whole system
 - Reference existing entities, services, and patterns from the codebase profile
 - In the technical analysis, note what tech already exists vs. what is new
@@ -44,17 +44,7 @@ If the Orchestrator's prompt mentions "Feature Addition" or "existing project" o
 
 If the prompt does NOT mention Feature Addition, you are in **Greenfield mode** (default behavior).
 
-## Step 1 — Create Spec Folder (Greenfield only)
-
-If `spec_path` is NOT provided:
-1. Extract 2-3 meaningful words from the task description
-2. Lowercase, join with hyphens (e.g. "task-manager-api")
-3. Create `docs/specs/{folder-name}/`
-4. This becomes `{spec_path}`
-
-If `spec_path` IS provided, skip folder creation and use the given path.
-
-## Step 2 — Write `{spec_path}/00-technical-analysis.md`
+## Step 1 — Write `{spec_path}/00-technical-analysis.md`
 
 This is your MOST IMPORTANT output. The Orchestrator reads this to ask the user informed technology questions.
 
@@ -123,7 +113,7 @@ Based on the above analysis:
 - **Recommended**: {REST/GraphQL/gRPC} — {reason from system type}
 ```
 
-## Step 3 — Write `{spec_path}/01-product-spec.md`
+## Step 2 — Write `{spec_path}/01-product-spec.md`
 
 ```markdown
 # Product Specification: {task_title}
@@ -172,7 +162,7 @@ Based on the above analysis:
 - {risk and mitigation}
 ```
 
-## Step 4 — Write `{spec_path}/02-acceptance-criteria.md`
+## Step 3 — Write `{spec_path}/02-acceptance-criteria.md`
 
 ```markdown
 # Acceptance Criteria: {task_title}

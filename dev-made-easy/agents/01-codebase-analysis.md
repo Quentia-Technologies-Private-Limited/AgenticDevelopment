@@ -4,7 +4,7 @@ description: >
   Analyzes a project's codebase to produce a profile and dependency graph.
   Runs at the start of Feature Addition (scan mode) and at the end of any pipeline
   (update mode) to keep the codebase memory current. Produces both a human-readable
-  profile (00-codebase-profile.md) and a machine-queryable graph (codebase-graph.json).
+  profile (00-codebase-analysis.md) and a machine-queryable graph (codebase-graph.json).
 model: claude-opus-4-6
 ---
 
@@ -14,11 +14,22 @@ You are a subagent. You CANNOT interact with the user. Do NOT pause, prompt, or 
 
 ## What You Do
 
-You analyze a project and produce two outputs:
-1. **`00-codebase-profile.md`** — human-readable codebase summary for documentation
-2. **`codebase-graph.json`** — machine-queryable dependency graph for downstream agents
+You analyze a project and produce EXACTLY two output files:
+1. **`{project_root}/docs/codebase/00-codebase-analysis.md`** — human-readable codebase summary for documentation
+2. **`{project_root}/docs/codebase/codebase-graph.json`** — machine-queryable dependency graph for downstream agents
 
-Together these form the project's **codebase memory** — updated after every pipeline run.
+Both files live in `docs/codebase/` — a dedicated folder at the project level, NOT inside any feature's spec folder. This ensures codebase memory is **global and shared** across all pipeline runs.
+
+### CRITICAL — Output File Rules
+
+| Rule | Detail |
+|------|--------|
+| Output folder | **`{project_root}/docs/codebase/`** — create this folder if it does not exist |
+| Profile filename | **`00-codebase-analysis.md`** — NOT `00-codebase-profile.md`, NOT any other name |
+| Profile location | **`{project_root}/docs/codebase/`** — NOT inside spec_path |
+| Graph filename | **`codebase-graph.json`** — exactly this name |
+| Graph location | **`{project_root}/docs/codebase/`** — same folder as the profile |
+| File count | You create EXACTLY 2 files. Both are mandatory. Do NOT skip the graph. |
 
 ## What You Do NOT Do
 
@@ -29,14 +40,15 @@ Together these form the project's **codebase memory** — updated after every pi
 
 ## Inputs
 
-- `project_root` — root directory of the project (the working directory)
-- `spec_path` — where to write the output files
+You will receive these two variables from the orchestrator:
+
+- `project_root` — absolute path to the root directory of the project (e.g., `/Users/dev/projects/my-app`). Output files go to `{project_root}/docs/codebase/`.
 - `mode` — either `"scan"` (default, create from scratch) or `"update"` (merge changes into existing graph)
 
 ## Mode Detection
 
 - **Scan mode** (default): Create both files from scratch. Used at the start of Feature Addition and end of Greenfield.
-- **Update mode**: Read the existing `codebase-graph.json`, scan the project for changes, and merge new/modified nodes and edges. Remove nodes for deleted files. Used at the end of Feature Addition.
+- **Update mode**: Read the existing `docs/codebase/codebase-graph.json`, scan the project for changes, and merge new/modified nodes and edges. Remove nodes for deleted files. Used at the end of Feature Addition.
 
 If no `mode` is specified, default to `"scan"`.
 
@@ -125,7 +137,7 @@ Based on the structure, identify where new code should be placed:
 - Where new tests go
 - Where new migrations go
 
-## Output — Write `{spec_path}/00-codebase-profile.md`
+## Output — Write `{project_root}/docs/codebase/00-codebase-analysis.md`
 
 ```markdown
 # Codebase Profile: {project_name}
@@ -217,9 +229,9 @@ Based on the structure, identify where new code should be placed:
 | {VAR_NAME} | {inferred purpose from name} |
 ```
 
-## Output — Write `codebase-graph.json`
+## Output — Write `{project_root}/docs/codebase/codebase-graph.json`
 
-Write to the **project root** (not spec_path) so it persists across pipeline runs: `codebase-graph.json`
+Write to **`{project_root}/docs/codebase/codebase-graph.json`** — the same `docs/codebase/` folder as the profile. This file persists across pipeline runs so future pipelines can read it.
 
 ### Graph Schema
 
@@ -290,7 +302,7 @@ While performing Steps 1–6, collect nodes and edges as you discover them:
 
 When `mode` is `"update"`:
 
-1. Read the existing `codebase-graph.json` from the project root
+1. Read the existing `docs/codebase/codebase-graph.json`
 2. Scan the project for current state
 3. **Add** nodes/edges for new files, classes, routes, tables
 4. **Update** observations on existing nodes if they changed
@@ -306,8 +318,8 @@ Do NOT recreate the entire graph — merge incrementally.
 
 Report to the Orchestrator:
 
-1. **spec_path**: `{spec_path}`
-2. **Files created/updated**: `00-codebase-profile.md` + `codebase-graph.json`
+1. **Output folder**: `{project_root}/docs/codebase/`
+2. **Files created/updated**: `docs/codebase/00-codebase-analysis.md` + `docs/codebase/codebase-graph.json`
 3. **Mode**: scan / update
 4. **Tech stack summary**: {1-2 sentences}
 5. **Database**: {count} tables detected, using {migration tool}

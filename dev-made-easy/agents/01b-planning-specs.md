@@ -34,8 +34,8 @@ Before writing, read the Phase 1 files for context:
 
 ## Mode Detection
 
-If the Orchestrator's prompt mentions "Feature Addition" or references a `00-codebase-profile.md`, you are in **Feature Addition mode**. In this mode:
-- Read `{spec_path}/00-codebase-profile.md` FIRST to understand the existing codebase
+If the Orchestrator's prompt mentions "Feature Addition" or references a `00-codebase-analysis.md`, you are in **Feature Addition mode**. In this mode:
+- Read `docs/codebase/00-codebase-analysis.md` FIRST to understand the existing codebase
 - `tech-decisions.md` should record the FULL stack (existing + new), marking new additions with `[NEW]`
 - `03-db-schema.md` should describe ONLY new tables and schema changes (new columns, ALTER TABLE, new indexes). Reference existing tables by name but do NOT redefine them.
 - `04-api-contracts.md` should describe ONLY new or modified endpoints. Reference existing endpoints by name but do NOT redefine them.

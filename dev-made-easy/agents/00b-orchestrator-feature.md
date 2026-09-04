@@ -140,11 +140,26 @@ If resuming, skip all completed steps and begin from the first non-completed ste
 
 ---
 
-## Step 1 — Collect Task Description
+## Step 0 — Collect Task Description and Establish spec_path
 
 If not provided in the invocation, ask:
 
 > "What feature or change do you want to add? Please describe it."
+
+### Establish spec_path
+
+Extract 2-4 key words from the task description, lowercase and hyphenated, and set:
+
+```
+{spec_path} = docs/specs/{task-slug}/
+```
+
+Examples:
+- "Add a statistics dashboard with charts" → `docs/specs/statistics-dashboard-charts/`
+- "Add push notifications" → `docs/specs/push-notifications/`
+- "Search functionality for products" → `docs/specs/product-search/`
+
+**Create this folder now.** All pipeline artifacts will be written here. Pass this path to every subagent.
 
 Then show this EXACT 8-item dashboard:
 
@@ -154,7 +169,7 @@ Then show this EXACT 8-item dashboard:
 ═══════════════════════════════════════════════════════
   Task : {task_description}
   Mode : Feature Addition (Existing Project)
-  Spec : (determined after Step 1)
+  Spec : {spec_path}
 ═══════════════════════════════════════════════════════
   [ ] 1. Codebase Analysis        PENDING
   [ ] 2. Feature Planning         PENDING
@@ -169,24 +184,27 @@ Then show this EXACT 8-item dashboard:
 
 Update after each step: `[⟳]` IN PROGRESS, `[✓]` DONE, `[✗]` FAILED
 
-## Step 2 — Codebase Analysis Agent (subagent)
+## Step 1 — Codebase Analysis Agent (subagent)
 
 Mark: Codebase Analysis → `[⟳]`
 
-First, create the spec folder: `docs/specs/{feature-name}/` (extract 2-3 words from task, lowercase, hyphenated).
+**Before invoking**, determine the actual project root path (the current working directory). Substitute it into `{project_root}` below — do NOT pass the literal string `{current working directory}`.
 
 Invoke the agent named **"Codebase Analysis Agent"** with this prompt:
 
 ```
-Analyze the existing project and produce the codebase memory (profile + graph).
+Analyze the existing project and produce the codebase memory.
 
-Project root: {current working directory}
-Spec path: {spec_path}
-Mode: scan
+project_root: {project_root}
+mode: scan
 
-Create both:
-1. {spec_path}/00-codebase-profile.md — human-readable codebase summary
-2. codebase-graph.json (project root) — machine-queryable dependency graph
+You MUST create EXACTLY 2 files in {project_root}/docs/codebase/:
+1. {project_root}/docs/codebase/00-codebase-analysis.md — human-readable codebase summary
+   IMPORTANT: The filename is 00-codebase-analysis.md — NOT any other name
+2. {project_root}/docs/codebase/codebase-graph.json — machine-queryable dependency graph
+   IMPORTANT: Both files go in docs/codebase/, NOT in the spec folder
+
+Create the docs/codebase/ folder if it does not exist.
 
 Scan the project for:
 - Detected tech stack (language, framework, database, ORM, test framework, cache, queue, auth)
@@ -199,20 +217,20 @@ Scan the project for:
 - Entry points for new code (where to add routes, services, models, tests, migrations)
 - Dependency graph: nodes (files, classes, functions, routes, tables, tests) and edges (imports, depends_on, uses_table, exposes_route, tested_by)
 
-Report back: spec_path, tech stack summary, table count, endpoint count, graph stats (node count, edge count), and key observations.
+Report back: tech stack summary, table count, endpoint count, graph stats (node count, edge count), and key observations.
 ```
 
-**Capture the `{spec_path}` from the response.** You need it for every subsequent step.
+**VERIFY after the agent completes:** Check that both `docs/codebase/00-codebase-analysis.md` and `docs/codebase/codebase-graph.json` exist. If either is missing, report the error and ask the user whether to retry.
 
 **Create `{spec_path}/pipeline-state.json`** with the format above. Set Step 1 status to `"completed"` with a timestamp.
 
 Mark: Codebase Analysis → `[✓]`
 
-## Step 3 — Feature Planning (subagent)
+## Step 2 — Feature Planning (subagent)
 
 Mark: Feature Planning → `[⟳]`
 
-**First: Read `{spec_path}/00-codebase-profile.md`.** You need to understand the existing codebase before planning.
+**First: Read `docs/codebase/00-codebase-analysis.md`.** You need to understand the existing codebase before planning.
 
 Invoke the agent named **"Planning Analysis Agent"** with this prompt:
 
@@ -222,7 +240,7 @@ Analyze the following feature request in the context of an EXISTING project.
 Feature description: {paste the user's task description here}
 
 IMPORTANT: This is a Feature Addition, NOT a greenfield project. An existing codebase profile is available at:
-{spec_path}/00-codebase-profile.md
+docs/codebase/00-codebase-analysis.md
 
 Read the codebase profile FIRST. Then create these 3 files in {spec_path}:
 1. 00-technical-analysis.md — analyze what the feature needs, referencing what already exists
@@ -242,12 +260,12 @@ Mark: Feature Planning → `[✓]`. Update `pipeline-state.json`: Step 2 → `"c
 
 **VERIFY:** The response should mention `00-technical-analysis.md`. If it mentions `03-db-schema.md` or `04-api-contracts.md`, something went wrong.
 
-## Step 4 — Tech Gap Analysis (YOU ask the user)
+## Step 3 — Tech Gap Analysis (YOU ask the user)
 
 Mark: Tech Gap Analysis → `[⟳]`
 
 **First: Read BOTH files:**
-- `{spec_path}/00-codebase-profile.md` — what tech already exists
+- `docs/codebase/00-codebase-analysis.md` — what tech already exists
 - `{spec_path}/00-technical-analysis.md` — what the feature needs
 
 Compare the two. There are three possible outcomes:
@@ -317,7 +335,7 @@ Show the confirmed summary. List the FULL stack (existing + new additions). Mark
 
 Mark: Tech Gap Analysis → `[✓]`. Update `pipeline-state.json`: Step 3 → `"completed"`.
 
-## Step 5 — Feature Specs Agent (subagent)
+## Step 4 — Feature Specs Agent (subagent)
 
 Mark: Feature Specs → `[⟳]`
 
@@ -329,7 +347,7 @@ Create tech-dependent planning specs for a FEATURE ADDITION to an existing proje
 Spec path: {spec_path}
 
 IMPORTANT: This is a Feature Addition. A codebase profile exists at:
-{spec_path}/00-codebase-profile.md
+docs/codebase/00-codebase-analysis.md
 
 Technology stack (existing + new):
 - Backend: {language} / {framework} [existing]
@@ -356,8 +374,10 @@ Mark: Feature Specs → `[✓]`. Update `pipeline-state.json`: Step 4 → `"comp
 ═══════════════════════════════════════════════════════
   Feature Planning Complete — Review Required
 ═══════════════════════════════════════════════════════
-  Files in: {spec_path}
-    ✓ 00-codebase-profile.md     (Codebase Analysis)
+  Codebase: docs/codebase/
+    ✓ 00-codebase-analysis.md     (Codebase Analysis)
+    ✓ codebase-graph.json         (Dependency Graph)
+  Feature:  {spec_path}
     ✓ 00-technical-analysis.md   (Feature Analysis)
     ✓ 01-product-spec.md         (Feature Spec)
     ✓ 02-acceptance-criteria.md  (Acceptance Criteria)
@@ -371,11 +391,11 @@ Mark: Feature Specs → `[✓]`. Update `pipeline-state.json`: Step 4 → `"comp
 
 Wait for user confirmation.
 
-## Step 6 — Development Agent (subagent)
+## Step 5 — Development Agent (subagent)
 
 Mark: Development Agent → `[⟳]`
 
-Invoke with this prompt:
+Invoke the agent named **"Development Agent"** with this prompt:
 
 ```
 Implement the feature described in the planning specs.
@@ -383,7 +403,7 @@ Implement the feature described in the planning specs.
 spec_path: {spec_path}
 
 IMPORTANT: This is a Feature Addition to an existing project. Read:
-- {spec_path}/00-codebase-profile.md — understand existing structure, patterns, and conventions
+- docs/codebase/00-codebase-analysis.md — understand existing structure, patterns, and conventions
 - All other spec files for the feature requirements
 
 You MUST:
@@ -409,11 +429,11 @@ Mark: Development Agent → `[✓]`. Update `pipeline-state.json`: Step 5 → `"
 
 Wait for user confirmation.
 
-## Step 7 — Code Review Agent (auto-chain)
+## Step 6 — Code Review Agent (auto-chain)
 
 Mark: Code Review → `[⟳]`
 
-Invoke with this prompt:
+Invoke the agent named **"Code Review Agent"** with this prompt:
 
 ```
 Review the implemented feature code.
@@ -421,7 +441,7 @@ Review the implemented feature code.
 spec_path: {spec_path}
 
 IMPORTANT: This is a Feature Addition. In addition to standard review checks, also verify:
-- New code follows the existing project's patterns and conventions (see 00-codebase-profile.md)
+- New code follows the existing project's patterns and conventions (see docs/codebase/00-codebase-analysis.md)
 - New code is placed in the correct directories per the existing structure
 - Naming conventions match the existing codebase
 - No unnecessary changes to existing files
@@ -433,17 +453,37 @@ Mark: Code Review → `[✓]`. Update `pipeline-state.json`: Step 6 → `"comple
 
 Briefly summarise findings before continuing.
 
-## Step 8 — Testing Agent (auto-chain)
+## Step 7 — Testing Agent (auto-chain)
 
-Mark: Testing → `[⟳]` → invoke with `spec_path` → Mark `[✓]`. Update `pipeline-state.json`: Step 7 → `"completed"`.
+Mark: Testing → `[⟳]`
+
+Invoke the agent named **"Testing Agent"** with this prompt:
+
+```
+Test the implemented feature code against acceptance criteria.
+
+spec_path: {spec_path}
+
+IMPORTANT: This is a Feature Addition to an existing project. In addition to standard testing, also verify:
+- ALL existing tests still pass — if any fail, log as MANDATORY (the new feature broke existing functionality)
+- New tests follow the existing test framework, assertion style, and naming conventions (see docs/codebase/00-codebase-analysis.md)
+- New tests are placed in the correct directories per the existing test structure
+- New feature code integrates correctly with existing services, models, and endpoints
+- Existing API endpoints still return the same response shapes and status codes
+
+Read 02-acceptance-criteria.md, 04-api-contracts.md, 06-review-report.md, and all source code.
+Log each defect as {spec_path}/issues/issue-{NNN}.md with triage scores.
+```
+
+Mark: Testing → `[✓]`. Update `pipeline-state.json`: Step 7 → `"completed"`.
 
 Show: `Issues: {count} (MANDATORY: {n}, HIGH: {n}, MEDIUM: {n}, LOW: {n})`
 
-## Step 9 — Documentation Agent (auto-chain)
+## Step 8 — Documentation Agent (auto-chain)
 
 Mark: Documentation → `[⟳]`
 
-Invoke with this prompt:
+Invoke the agent named **"Documentation Agent"** with this prompt:
 
 ```
 Document the new feature.
@@ -466,18 +506,18 @@ After all 8 steps complete and before showing the final dashboard, invoke the **
 ```
 Update the codebase memory to reflect the newly added feature.
 
-Project root: {current working directory}
-Spec path: {spec_path}
-Mode: update
+project_root: {project_root}
+mode: update
 
-Read the existing codebase-graph.json, scan the project for changes from this
-feature, and merge new/modified nodes and edges. Update 00-codebase-profile.md
-to include the new feature's components.
+Both files are in {project_root}/docs/codebase/:
+- Read the existing docs/codebase/codebase-graph.json, scan the project for changes
+  from this feature, and merge new/modified nodes and edges.
+- Update docs/codebase/00-codebase-analysis.md to include the new feature's components.
 ```
 
 This keeps the codebase memory current for the next Feature Addition pipeline.
 
-## Step 10 — Pipeline Complete
+## Pipeline Complete
 
 ```
 ═══════════════════════════════════════════════════════

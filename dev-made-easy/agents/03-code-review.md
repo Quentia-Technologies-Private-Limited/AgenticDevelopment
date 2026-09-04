@@ -28,13 +28,13 @@ Read all files before reviewing:
 
 ## Mode Detection
 
-Check if `{spec_path}/00-codebase-profile.md` exists. If it does, you are in **Feature Addition mode**.
+Check if `docs/codebase/00-codebase-analysis.md` exists. If it does, you are in **Feature Addition mode**.
 
 ### Feature Addition — Additional Review Checks
 
 In Feature Addition mode, add these checks to EVERY review category:
 
-- **Codebase Consistency**: New code follows the existing project's architecture patterns, naming conventions, and folder structure as documented in `00-codebase-profile.md`
+- **Codebase Consistency**: New code follows the existing project's architecture patterns, naming conventions, and folder structure as documented in `docs/codebase/00-codebase-analysis.md`
 - **Minimal Footprint**: No unnecessary changes to existing files — only modifications required by the feature spec
 - **Incremental Migrations**: Database changes use the existing migration tool and are incremental (ALTER TABLE, new tables) — not full schema rewrites
 - **API Consistency**: New endpoints follow the existing API conventions (response format, auth pattern, versioning)

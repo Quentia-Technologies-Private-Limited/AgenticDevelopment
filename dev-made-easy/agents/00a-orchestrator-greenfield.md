@@ -128,11 +128,26 @@ If resuming, skip all completed steps and begin from the first non-completed ste
 
 ---
 
-## Step 1 — Collect Task Description
+## Step 0 — Collect Task Description and Establish spec_path
 
 If not provided in the invocation, ask:
 
 > "What would you like to build? Please describe the task or feature."
+
+### Establish spec_path
+
+Extract 2-4 key words from the task description, lowercase and hyphenated, and set:
+
+```
+{spec_path} = docs/specs/{task-slug}/
+```
+
+Examples:
+- "User authentication system with JWT" → `docs/specs/user-auth-system-jwt/`
+- "Build a Pomodoro timer" → `docs/specs/pomodoro-timer/`
+- "E-commerce product catalog" → `docs/specs/ecommerce-product-catalog/`
+
+**Create this folder now.** All pipeline artifacts will be written here. Pass this path to every subagent.
 
 Then show this EXACT 7-item dashboard:
 
@@ -142,7 +157,7 @@ Then show this EXACT 7-item dashboard:
 ═══════════════════════════════════════════════════════
   Task : {task_description}
   Mode : Greenfield (New Project)
-  Spec : (determined after Step 1)
+  Spec : {spec_path}
 ═══════════════════════════════════════════════════════
   [ ] 1. Planning Analysis        PENDING
   [ ] 2. Technology Decisions     PENDING
@@ -156,7 +171,7 @@ Then show this EXACT 7-item dashboard:
 
 Update after each step: `[⟳]` IN PROGRESS, `[✓]` DONE, `[✗]` FAILED
 
-## Step 2 — Planning Analysis Agent (subagent)
+## Step 1 — Planning Analysis Agent (subagent)
 
 Mark: Planning Analysis → `[⟳]`
 
@@ -167,15 +182,15 @@ Analyze the following task and create tech-independent planning documents.
 
 Task description: {paste the user's task description here}
 
-Create the spec folder under docs/specs/ and write these 3 files:
+Spec path: {spec_path}
+
+Write these 3 files in {spec_path}:
 1. 00-technical-analysis.md — system requirements analysis with technology recommendations
 2. 01-product-spec.md — product specification with user stories
 3. 02-acceptance-criteria.md — Given/When/Then acceptance criteria
 
-Report back: the spec_path you created, and a summary of key findings from the technical analysis.
+Report back: a summary of key findings from the technical analysis.
 ```
-
-**Capture the `{spec_path}` from the response.** You need it for every subsequent step.
 
 **Create `{spec_path}/pipeline-state.json`** with the format above. Set Step 1 status to `"completed"` with a timestamp.
 
@@ -183,7 +198,7 @@ Mark: Planning Analysis → `[✓]`
 
 **VERIFY:** The response should mention `00-technical-analysis.md`. If it mentions `03-db-schema.md` or `04-api-contracts.md`, something went wrong.
 
-## Step 3 — Technology Decisions (YOU ask the user)
+## Step 2 — Technology Decisions (YOU ask the user)
 
 Mark: Technology Decisions → `[⟳]`
 
@@ -259,7 +274,7 @@ Show the confirmed summary:
 
 Mark: Technology Decisions → `[✓]`. Update `pipeline-state.json`: Step 2 → `"completed"`.
 
-## Step 4 — Planning Specs Agent (subagent)
+## Step 3 — Planning Specs Agent (subagent)
 
 Mark: Planning Specs → `[⟳]`
 
@@ -308,13 +323,23 @@ Mark: Planning Specs → `[✓]`. Update `pipeline-state.json`: Step 3 → `"com
 
 Wait for user confirmation.
 
-## Step 5 — Development Agent (subagent)
+## Step 4 — Development Agent (subagent)
 
 Mark: Development Agent → `[⟳]`
 
-Invoke with: `spec_path: {spec_path}`
+Invoke the agent named **"Development Agent"** with this prompt:
 
-The Development Agent reads `tech-decisions.md` and writes all source code plus `{spec_path}/05-implementation-notes.md`.
+```
+Implement the system described in the planning specs.
+
+spec_path: {spec_path}
+
+Read tech-decisions.md for the confirmed technology stack, then read all other spec files
+(00-technical-analysis.md, 01-product-spec.md, 02-acceptance-criteria.md, 03-db-schema.md,
+04-api-contracts.md) for the full system design.
+
+Write all source code and create {spec_path}/05-implementation-notes.md when done.
+```
 
 Mark: Development Agent → `[✓]`. Update `pipeline-state.json`: Step 4 → `"completed"`.
 
@@ -331,36 +356,84 @@ Mark: Development Agent → `[✓]`. Update `pipeline-state.json`: Step 4 → `"
 
 Wait for user confirmation.
 
-## Step 6 — Code Review Agent (auto-chain)
+## Step 5 — Code Review Agent (auto-chain)
 
-Mark: Code Review → `[⟳]` → invoke with `spec_path` → Mark `[✓]`. Update `pipeline-state.json`: Step 5 → `"completed"`.
+Mark: Code Review → `[⟳]`
+
+Invoke the agent named **"Code Review Agent"** with this prompt:
+
+```
+Review the implemented code against the planning spec.
+
+spec_path: {spec_path}
+
+Read all spec files and source code, then produce {spec_path}/06-review-report.md
+with findings categorised by severity (CRITICAL, HIGH, MEDIUM, LOW).
+```
+
+Mark: Code Review → `[✓]`. Update `pipeline-state.json`: Step 5 → `"completed"`.
 
 Briefly summarise findings before continuing.
 
-## Step 7 — Testing Agent (auto-chain)
+## Step 6 — Testing Agent (auto-chain)
 
-Mark: Testing → `[⟳]` → invoke with `spec_path` → Mark `[✓]`. Update `pipeline-state.json`: Step 6 → `"completed"`.
+Mark: Testing → `[⟳]`
+
+Invoke the agent named **"Testing Agent"** with this prompt:
+
+```
+Test the implemented code against acceptance criteria.
+
+spec_path: {spec_path}
+
+Read 02-acceptance-criteria.md, 04-api-contracts.md, 06-review-report.md, and all source code.
+Run unit tests, integration tests, and acceptance criteria tests.
+Log each defect as {spec_path}/issues/issue-{NNN}.md with triage scores.
+```
+
+Mark: Testing → `[✓]`. Update `pipeline-state.json`: Step 6 → `"completed"`.
 
 Show: `Issues: {count} (MANDATORY: {n}, HIGH: {n}, MEDIUM: {n}, LOW: {n})`
 
-## Step 8 — Documentation Agent (auto-chain)
+## Step 7 — Documentation Agent (auto-chain)
 
-Mark: Documentation → `[⟳]` → invoke with `spec_path` → Mark `[✓]`. Update `pipeline-state.json`: Step 7 → `"completed"`, top-level `status` → `"completed"`, set `completed_at`.
+Mark: Documentation → `[⟳]`
+
+Invoke the agent named **"Documentation Agent"** with this prompt:
+
+```
+Generate project documentation.
+
+spec_path: {spec_path}
+
+Read all spec files and source code. Produce:
+- README.md (project root)
+- docs/API.md (full API reference)
+- CHANGELOG.md (project root)
+- Inline docstrings on all public classes and methods
+```
+
+Mark: Documentation → `[✓]`. Update `pipeline-state.json`: Step 7 → `"completed"`, top-level `status` → `"completed"`, set `completed_at`.
 
 ## Post-Pipeline — Codebase Snapshot (automatic)
 
 After all 7 steps complete and before showing the final dashboard, invoke the **"Codebase Analysis Agent"** to create the initial codebase memory. This is NOT a numbered pipeline step — it runs automatically.
 
+**Before invoking**, determine the actual project root path (the current working directory). Substitute it into `{project_root}` below — do NOT pass the literal string `{current working directory}`.
+
 ```
 Scan the newly built project and create the codebase memory.
 
-Project root: {current working directory}
-Spec path: {spec_path}
-Mode: scan
+project_root: {project_root}
+mode: scan
 
-Create:
-1. {spec_path}/00-codebase-profile.md — human-readable codebase summary
-2. codebase-graph.json (project root) — machine-queryable dependency graph
+You MUST create EXACTLY 2 files in {project_root}/docs/codebase/:
+1. {project_root}/docs/codebase/00-codebase-analysis.md — human-readable codebase summary
+   IMPORTANT: The filename is 00-codebase-analysis.md — NOT any other name
+2. {project_root}/docs/codebase/codebase-graph.json — machine-queryable dependency graph
+   IMPORTANT: Both files go in docs/codebase/, NOT in the spec folder
+
+Create the docs/codebase/ folder if it does not exist.
 
 This is a Greenfield project that was just built. Scan all source code, models,
 routes, tests, and configuration to produce a complete snapshot.
@@ -368,7 +441,7 @@ routes, tests, and configuration to produce a complete snapshot.
 
 This snapshot enables future Feature Addition pipelines to start with full codebase context instead of scanning from cold.
 
-## Step 9 — Pipeline Complete
+## Pipeline Complete
 
 ```
 ═══════════════════════════════════════════════════════

@@ -27,12 +27,12 @@ Read all files in `{spec_path}` before writing a single line of code:
 
 ## Mode Detection
 
-Check if `{spec_path}/00-codebase-profile.md` exists. If it does, you are in **Feature Addition mode**.
+Check if `docs/codebase/00-codebase-analysis.md` exists. If it does, you are in **Feature Addition mode**.
 
 ### Feature Addition Rules
 
 When in Feature Addition mode, you MUST:
-- Read `00-codebase-profile.md` FIRST to understand the existing project's structure, patterns, and conventions
+- Read `docs/codebase/00-codebase-analysis.md` FIRST to understand the existing project's structure, patterns, and conventions
 - **Follow existing patterns**: Use the same architecture pattern (repository, service, factory, controller, component-based) as the existing codebase
 - **Follow existing naming**: Match file casing, method naming, and class naming conventions already in use
 - **Place code correctly**: Add new files in the locations specified in the codebase profile's "Entry Points for New Code" section
@@ -41,11 +41,11 @@ When in Feature Addition mode, you MUST:
 - **Do NOT restructure**: Do not refactor, rename, or reorganize existing code unless the spec explicitly requires it
 - **Match coding style**: Use the same indentation, import style, error handling patterns, and module structure as existing code
 
-If `00-codebase-profile.md` does NOT exist, you are in **Greenfield mode** — scaffold the full project from scratch (default behavior below).
+If `docs/codebase/00-codebase-analysis.md` does NOT exist, you are in **Greenfield mode** — scaffold the full project from scratch (default behavior below).
 
 ## Step 0 — Read Codebase Graph (if available)
 
-Check if `codebase-graph.json` exists in the project root. If it does, read it before writing any code. Use it to:
+Check if `docs/codebase/codebase-graph.json` exists. If it does, read it before writing any code. Use it to:
 
 - **Identify dependency chains**: Before creating a new service, query the graph to find how existing services are wired (factory → service → repository → table)
 - **Find related files**: Look up nodes connected to entities you need to modify or extend

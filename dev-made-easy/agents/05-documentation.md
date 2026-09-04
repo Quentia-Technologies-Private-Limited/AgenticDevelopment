@@ -26,7 +26,7 @@ Read before writing documentation:
 
 ## Mode Detection
 
-Check if `{spec_path}/00-codebase-profile.md` exists. If it does, you are in **Feature Addition mode**.
+Check if `docs/codebase/00-codebase-analysis.md` exists. If it does, you are in **Feature Addition mode**.
 
 ### Feature Addition — Update Instead of Create
 
@@ -36,7 +36,7 @@ In Feature Addition mode, do NOT overwrite existing documentation. Instead:
 - **CHANGELOG.md**: Read the existing changelog first. ADD a new version entry at the top for this feature. Do not modify existing entries.
 - **Docstrings**: Add docstrings to NEW code only. Do not modify existing docstrings unless the feature changed the behavior of an existing method.
 
-If `00-codebase-profile.md` does NOT exist, you are in **Greenfield mode** — create all documentation from scratch (default behavior below).
+If `docs/codebase/00-codebase-analysis.md` does NOT exist, you are in **Greenfield mode** — create all documentation from scratch (default behavior below).
 
 ## Output Files
 

@@ -24,6 +24,22 @@ Read before testing:
 - `{spec_path}/05-implementation-notes.md` — how to run the application locally
 - All source code and existing test files
 
+## Mode Detection
+
+Check if `docs/codebase/00-codebase-analysis.md` exists. If it does, you are in **Feature Addition mode**.
+
+### Feature Addition — Additional Test Checks
+
+In Feature Addition mode, add these checks to your testing approach:
+
+- **Existing tests still pass**: Run ALL existing tests first. If any fail, log as MANDATORY — the new feature broke existing functionality.
+- **Test placement**: New tests are placed in the correct directories per the existing test structure documented in `docs/codebase/00-codebase-analysis.md`.
+- **Test style consistency**: New tests follow the same framework, assertion style, and naming conventions as existing tests.
+- **Integration with existing code**: Test that new feature code interacts correctly with existing services, models, and endpoints.
+- **No regression on existing endpoints**: Existing API endpoints still return the same response shapes and status codes.
+
+If `docs/codebase/00-codebase-analysis.md` does NOT exist, you are in **Greenfield mode** — test everything from scratch (default behavior below).
+
 ## Testing Approach
 
 ### 1. Unit Tests

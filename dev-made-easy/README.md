@@ -29,7 +29,7 @@ In Feature Addition mode, the pipeline first scans your existing codebase, then 
 | Development Orchestrator | Router: determines new vs. existing project, dispatches to correct pipeline | — |
 | Greenfield Orchestrator | Coordinates 7-step pipeline for new projects, asks tech questions | Status dashboard |
 | Feature Addition Orchestrator | Coordinates 8-step pipeline for existing projects, does tech gap analysis | Status dashboard |
-| Codebase Analysis Agent | Scans existing project: tech stack, patterns, schema, API, tests (Feature Addition only) | `00-codebase-profile.md` |
+| Codebase Analysis Agent | Scans existing project: tech stack, patterns, schema, API, tests. Outputs to `docs/codebase/` | `00-codebase-analysis.md` + `codebase-graph.json` |
 | Planning Analysis Agent | System analysis, product spec, acceptance criteria (tech-independent) | `00-technical-analysis.md`, `01-product-spec.md`, `02-acceptance-criteria.md` |
 | Planning Specs Agent | DB schema, API contracts using confirmed tech stack (tech-dependent) | `tech-decisions.md`, `03-db-schema.md`, `04-api-contracts.md` |
 | Development Agent | Implements code, follows existing patterns in Feature Addition mode | Source code + implementation notes |
@@ -248,14 +248,17 @@ docs/specs/{task_title}/
 ### Feature Addition Mode
 
 ```
-docs/specs/{feature_name}/
-├── 00-codebase-profile.md     ← existing project analysis (tech, patterns, schema, API)
-├── 00-technical-analysis.md    ← feature analysis referencing existing codebase
-├── 01-product-spec.md          ← feature-scoped product spec
-├── 02-acceptance-criteria.md   ← feature-scoped acceptance criteria
-├── tech-decisions.md           ← full stack (existing + new, marked)
-├── 03-db-schema.md             ← incremental schema changes only
-├── 04-api-contracts.md         ← new/modified endpoints only
+docs/codebase/                          ← global codebase memory (shared across all pipelines)
+├── 00-codebase-analysis.md             ← existing project analysis (tech, patterns, schema, API)
+└── codebase-graph.json                 ← machine-queryable dependency graph
+
+docs/specs/{feature_name}/              ← feature-specific specs
+├── 00-technical-analysis.md            ← feature analysis referencing existing codebase
+├── 01-product-spec.md                  ← feature-scoped product spec
+├── 02-acceptance-criteria.md           ← feature-scoped acceptance criteria
+├── tech-decisions.md                   ← full stack (existing + new, marked)
+├── 03-db-schema.md                     ← incremental schema changes only
+├── 04-api-contracts.md                 ← new/modified endpoints only
 ├── 05-implementation-notes.md
 ├── 06-review-report.md
 └── issues/
