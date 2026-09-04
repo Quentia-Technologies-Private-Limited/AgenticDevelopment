@@ -46,9 +46,9 @@ These are two different agents with two different names. You invoke each one sep
 
 You MUST invoke **"Codebase Analysis Agent"** before any planning begins. All downstream agents receive the codebase profile it produces.
 
-### Rule 5: Gap analysis — NOT full tech questions
+### Rule 5: Mandatory stack confirmation — every time
 
-Do NOT ask the user about their entire tech stack. Their stack already exists. Compare what exists vs. what the feature needs and ONLY ask about gaps.
+You MUST always show the FULL current tech stack and ask the user to confirm it before proceeding to specs. If there are gaps (new tech needed), highlight them. If there are no gaps, still show the stack. The user MUST confirm — never silently proceed.
 
 ### Rule 6: Maintain pipeline-state.json
 
@@ -59,7 +59,8 @@ You MUST create and update `{spec_path}/pipeline-state.json` to track progress. 
 | Wrong | Right |
 |-------|-------|
 | Showing a dashboard that is not 8 items | Show the 8-item dashboard below |
-| Asking full tech stack questions | Only ask about tech GAPS |
+| Skipping stack confirmation when no gaps found | ALWAYS show full stack and wait for user confirmation |
+| Proceeding to Step 4 without user confirming the stack | STOP and wait — user must confirm before specs |
 | Saying "Development Agent will ask tech questions" | YOU handle tech gap analysis in Step 3 |
 | Invoking "Planning Agent" | Invoke "Planning Analysis Agent" or "Planning Specs Agent" |
 | Skipping Codebase Analysis | MUST run it in Step 1 before anything else |
@@ -268,42 +269,44 @@ Mark: Tech Gap Analysis → `[⟳]`
 - `docs/codebase/00-codebase-analysis.md` — what tech already exists
 - `{spec_path}/00-technical-analysis.md` — what the feature needs
 
-Compare the two. There are three possible outcomes:
+Compare the two and identify any gaps (tech the feature needs that doesn't exist yet).
 
-### Outcome A: No new tech needed
+### Mandatory: Show full stack + gaps in ONE message
 
-The existing stack covers everything the feature requires.
+Regardless of whether gaps exist, ALWAYS present the full stack to the user in this format:
 
-> The feature can be built entirely with your existing stack:
-> - {list current stack from codebase profile}
+> **Current Tech Stack** (from codebase analysis):
 >
-> No new technologies needed. Shall I proceed?
-
-**STOP. Wait for user confirmation.**
-
-### Outcome B: New tech needed for some aspects
-
-The feature requires technology not in the current stack.
-
-> Your current stack:
-> - {list current stack from codebase profile}
+> | Layer | Technology | Status |
+> |-------|-----------|--------|
+> | Backend | {Language} / {Framework} | existing |
+> | Database | {DB} / {ORM} | existing |
+> | Caching | {Service or "None"} | existing |
+> | Queue | {Service or "None"} | existing |
+> | Auth | {Method} | existing |
+> | API Style | {REST/GraphQL/gRPC} | existing |
+> | Frontend | {Framework or "None"} | existing |
+> | Docker | {Yes/No} | existing |
 >
-> This feature additionally needs:
+> {IF gaps detected, add this section:}
+>
+> **New tech needed for this feature:**
 >
 > **{Category}:** I recommend **{technology}** because {reason from analysis}.
 > - Alternatives: {options}
 >
 > {Repeat for each gap}
 >
-> Everything else will use your existing stack. Confirm?
+> {IF no gaps detected:}
+> No new technologies needed — this feature can be built with the existing stack.
+>
+> **Confirm this stack for the new feature, or tell me what you'd like to change.**
 
-**STOP. Wait for user reply. Do not continue.**
+**STOP HERE. Send this message NOW. Wait for the user to reply. Do NOT proceed to Step 4 until the user confirms.**
 
-If there are many gaps, group them the same way as Greenfield (Backend & API, Data & Performance, Infrastructure) but ONLY ask about the gaps — do not re-ask about things that already exist.
+### After user replies
 
-### Outcome C: User wants to change existing tech
-
-If the user says they want to change something that already exists (e.g., "switch from REST to GraphQL"), confirm the change and note it. The existing tech will be overridden in the tech decisions for this feature.
+**User wants to change existing tech:** If the user says they want to change something that already exists (e.g., "switch from REST to GraphQL"), confirm the change and note it. The existing tech will be overridden in the tech decisions for this feature.
 
 ### Vague response handling
 
@@ -313,7 +316,7 @@ If the user says they want to change something that already exists (e.g., "switc
 | "just proceed" | Use recommendations for all gaps |
 | "looks good" / "yes" / "proceed" | Confirmed — move forward |
 
-### After gap analysis is resolved
+### After confirmation received
 
 Show the confirmed summary. List the FULL stack (existing + new additions). Mark new additions clearly:
 

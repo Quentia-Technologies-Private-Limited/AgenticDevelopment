@@ -44,6 +44,10 @@ These are two different agents with two different names. You invoke each one sep
 
 You MUST create and update `{spec_path}/pipeline-state.json` to track progress. This enables resuming interrupted runs. Update the file EVERY time a step status changes (pending → in_progress → completed/failed).
 
+### Rule 5: Step 2 requires THREE separate messages
+
+In Step 2, you ask 3 groups of technology questions. Each group MUST be a separate message. You send Group 1, STOP, and wait for the user's reply. Then you send Group 2, STOP, and wait. Then Group 3, STOP, and wait. Only after all 3 replies do you show the confirmed summary. NEVER combine groups into one message. NEVER skip a group.
+
 ### WRONG behaviors — if you catch yourself doing any of these, STOP and correct:
 
 | Wrong | Right |
@@ -55,6 +59,9 @@ You MUST create and update `{spec_path}/pipeline-state.json` to track progress. 
 | api-contracts created before tech decisions | api-contracts is Step 3 only |
 | Skipping 00-technical-analysis.md | Step 1 MUST create it |
 | Asking tech questions without reading analysis | Read 00-technical-analysis.md BEFORE asking |
+| Asking all 3 groups in one message | Ask Group 1, STOP, wait for reply. Then Group 2, STOP, wait. Then Group 3, STOP, wait. THREE separate messages. |
+| Skipping Group 2 or Group 3 questions | You MUST ask ALL 3 groups even if analysis says "None needed" — let the user confirm |
+| Showing confirmed summary before all 3 groups answered | Do NOT show the summary until the user has replied to all 3 groups |
 
 ---
 
@@ -204,7 +211,17 @@ Mark: Technology Decisions → `[⟳]`
 
 **First: Read `{spec_path}/00-technical-analysis.md`.** Use it to make informed recommendations.
 
-Ask the user in 3 groups. After each group, STOP and WAIT for the user to reply.
+### MANDATORY: Ask ALL 3 groups — one at a time
+
+You MUST ask exactly 3 groups of questions. Each group is a SEPARATE message to the user. You CANNOT combine groups. You CANNOT skip any group. Even if the analysis says "None needed" for caching, queue, or frontend — you STILL ask the user to confirm.
+
+**Tracking:** After each group, mentally note: "Groups asked: {N} of 3". Do NOT proceed to Step 3 until groups asked = 3.
+
+| After this group... | You have asked... | Next action |
+|---------------------|-------------------|-------------|
+| Group 1 answered | 1 of 3 | Ask Group 2. Do NOT skip to summary. |
+| Group 2 answered | 2 of 3 | Ask Group 3. Do NOT skip to summary. |
+| Group 3 answered | 3 of 3 | NOW show the confirmed summary. |
 
 ### Group 1 — Backend & API
 
@@ -218,7 +235,7 @@ Ask the user in 3 groups. After each group, STOP and WAIT for the user to reply.
 > **Authentication:** **{method}** because {reason from user stories}.
 > - Alternatives: {options}
 
-**STOP. Wait for user reply. Do not continue.**
+**STOP HERE. Send this message NOW. Do NOT include Group 2 or Group 3 in this message. Wait for the user to reply before continuing. Groups asked: 1 of 3.**
 
 ### Group 2 — Data & Performance (after user answers Group 1)
 
@@ -229,7 +246,7 @@ Ask the user in 3 groups. After each group, STOP and WAIT for the user to reply.
 >
 > **Queue/Background jobs:** {Recommend if analysis identifies async needs, or say "Not needed — correct?"}
 
-**STOP. Wait for user reply. Do not continue.**
+**STOP HERE. Send this message NOW. Do NOT include Group 3 in this message. Wait for the user to reply before continuing. Groups asked: 2 of 3.**
 
 ### Group 3 — Infrastructure (after user answers Group 2)
 
@@ -239,7 +256,7 @@ Ask the user in 3 groups. After each group, STOP and WAIT for the user to reply.
 >
 > **External services:** {List if analysis identifies any, or "None needed."}
 
-**STOP. Wait for user reply. Do not continue.**
+**STOP HERE. Send this message NOW. Wait for the user to reply before continuing. Groups asked: 3 of 3. After the user replies, show the confirmed summary.**
 
 ### Vague response handling
 
