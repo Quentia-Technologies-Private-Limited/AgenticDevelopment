@@ -71,29 +71,78 @@ If not already provided, ask:
 
 > "What would you like to build? Please describe the task or feature."
 
-## Step 3 — Dispatch
+## Step 3 — Establish project_root and spec_path
+
+These two parameters are set HERE and passed to all downstream orchestrators and agents. They are NEVER determined by sub-orchestrators.
+
+### project_root
+
+The current working directory. Determine the actual absolute path — do NOT pass a literal placeholder string.
+
+### spec_path
+
+Extract 2-4 key words from the task description, lowercase and hyphenated:
+
+```
+{spec_path} = {project_root}/docs/specs/{task-slug}
+```
+
+Examples:
+- "User authentication system with JWT" → `{project_root}/docs/specs/user-auth-system-jwt`
+- "Build a Pomodoro timer" → `{project_root}/docs/specs/pomodoro-timer`
+- "Add push notifications" → `{project_root}/docs/specs/push-notifications`
+
+**Create the `{spec_path}` folder NOW.** If `docs/specs/` does not exist, create it too. All pipeline artifacts will be written here.
+
+## Pre-Dispatch Gate — Verify before handing off
+
+Before dispatching to ANY orchestrator, verify ALL of these. If any check fails, STOP and fix it before proceeding.
+
+| # | Check | How to verify | If it fails |
+|---|-------|---------------|-------------|
+| G1 | `project_root` is a real absolute path | It must start with `/` and be a directory that exists | STOP — determine the actual cwd |
+| G2 | `spec_path` folder exists | The folder you just created must exist on disk | STOP — create it now |
+| G3 | `task_description` is non-empty | Must be at least 10 characters of meaningful text | STOP — ask the user again |
+| G4 | Mode is determined | Must be exactly "greenfield" or "feature-addition" | STOP — ask the user |
+| G5 | No spec_path collision | `{spec_path}/pipeline-state.json` should NOT already exist (unless resuming) | Ask: "A pipeline already exists at this path. Resume it, or pick a different name?" |
+| G6 | Feature Addition has source code | If mode is feature-addition, at least one source file must exist in `project_root` (e.g., `*.py`, `*.java`, `*.ts`, `package.json`, `pom.xml`) | STOP — "This looks like an empty project. Did you mean Greenfield?" |
+| G7 | Greenfield has no codebase profile | If mode is greenfield and `docs/codebase/00-codebase-analysis.md` exists, this project was already built | Ask: "This project already has a codebase profile. Did you mean Feature Addition?" |
+
+Only proceed to dispatch after ALL gates pass.
+
+## Step 4 — Dispatch
 
 ### If Greenfield (New Project)
 
 Invoke the agent named **"Greenfield Orchestrator"** with this prompt:
 
 ```
-{paste the user's full task description here}
-```
+Task description: {paste the user's full task description here}
+
+project_root: {project_root}
+spec_path: {spec_path}
+
+The spec folder has already been created at {spec_path}. Do NOT create it again.
 
 The Greenfield Orchestrator handles the complete 7-step pipeline: Planning Analysis → Technology Decisions → Planning Specs → Development → Code Review → Testing → Documentation.
+```
 
 ### If Feature Addition (Existing Project)
 
 Invoke the agent named **"Feature Addition Orchestrator"** with this prompt:
 
 ```
-{paste the user's full task description here}
-```
+Task description: {paste the user's full task description here}
+
+project_root: {project_root}
+spec_path: {spec_path}
+
+The spec folder has already been created at {spec_path}. Do NOT create it again.
 
 The Feature Addition Orchestrator handles the complete 8-step pipeline: Codebase Analysis → Feature Planning → Tech Gap Analysis → Feature Specs → Development → Code Review → Testing → Documentation.
+```
 
-## Step 4 — Report
+## Step 5 — Report
 
 When the dispatched orchestrator completes, relay its final status dashboard to the user.
 

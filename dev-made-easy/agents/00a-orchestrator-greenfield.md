@@ -66,6 +66,25 @@ In Step 2, you ask 3 groups of technology questions. Each group MUST be a separa
 
 ---
 
+## Step Transition Gates
+
+After each step completes, verify its expected outputs exist BEFORE starting the next step. If any file is missing, STOP and either retry the step or report the error to the user.
+
+| After Step | Required Files | If Missing |
+|------------|---------------|------------|
+| 1. Planning Analysis | `{spec_path}/00-technical-analysis.md`, `{spec_path}/01-product-spec.md`, `{spec_path}/02-acceptance-criteria.md` | STOP — retry Step 1 or ask user |
+| 2. Tech Decisions | User has confirmed all 3 groups (groups asked = 3 of 3) | STOP — ask remaining groups |
+| 3. Planning Specs | `{spec_path}/03-tech-decisions.md`, `{spec_path}/04-db-schema.md`, `{spec_path}/05-api-contracts.md` | STOP — retry Step 3 or ask user |
+| 4. Development | `{spec_path}/06-implementation-notes.md` and at least one source code file exists in `{project_root}` | STOP — retry Step 4 or ask user |
+| 5. Code Review | `{spec_path}/07-review-report.md` | STOP — retry Step 5 or ask user |
+| 6. Testing | Testing agent returned results (issues logged if any) | STOP — retry Step 6 or ask user |
+| 7. Documentation | `{project_root}/README.md` exists | STOP — retry Step 7 or ask user |
+| Post-Pipeline | `{project_root}/docs/codebase/00-codebase-analysis.md` and `{project_root}/docs/codebase/codebase-graph.json` | STOP — run Codebase Snapshot now |
+
+**How to verify:** After each subagent returns, check the required files for that step. If a file is missing, do NOT silently proceed. Mark the step `[✗]`, update `pipeline-state.json` with `"failed"` status and an error message describing the missing file(s), then ask: **"Step {N} completed but {missing_file} was not created. Retry this step or skip?"**
+
+---
+
 ## Pipeline State Management
 
 ### State file format
@@ -136,28 +155,19 @@ If resuming, skip all completed steps and begin from the first non-completed ste
 
 ---
 
-## Step 0 — Collect Task Description and Establish spec_path
+## Inputs
 
-If not provided in the invocation, ask:
+You receive these from the Development Orchestrator (router). Do NOT determine them yourself.
 
-> "What would you like to build? Please describe the task or feature."
+- `project_root` — absolute path to the project root (e.g., `/Users/dev/projects/my-app`)
+- `spec_path` — absolute path to the spec folder (e.g., `/Users/dev/projects/my-app/docs/specs/user-auth-system-jwt`). The folder has already been created by the router.
+- `task_description` — what the user wants to build
 
-### Establish spec_path
+If any of these are missing from the invocation prompt, STOP and report the error. Do NOT guess or create the spec folder yourself.
 
-Extract 2-4 key words from the task description, lowercase and hyphenated, and set:
+## Step 0 — Show Dashboard
 
-```
-{spec_path} = docs/specs/{task-slug}/
-```
-
-Examples:
-- "User authentication system with JWT" → `docs/specs/user-auth-system-jwt/`
-- "Build a Pomodoro timer" → `docs/specs/pomodoro-timer/`
-- "E-commerce product catalog" → `docs/specs/ecommerce-product-catalog/`
-
-**Create this folder now.** All pipeline artifacts will be written here. Pass this path to every subagent.
-
-Then show this EXACT 7-item dashboard:
+Show this EXACT 7-item dashboard:
 
 ```
 ═══════════════════════════════════════════════════════
@@ -204,7 +214,7 @@ Report back: a summary of key findings from the technical analysis.
 
 Mark: Planning Analysis → `[✓]`
 
-**VERIFY:** The response should mention `00-technical-analysis.md`. If it mentions `04-db-schema.md` or `05-api-contracts.md`, something went wrong.
+**GATE CHECK:** Verify all 3 files exist: `{spec_path}/00-technical-analysis.md`, `{spec_path}/01-product-spec.md`, `{spec_path}/02-acceptance-criteria.md`. If any is missing, mark Step 1 `[✗]` and ask: **"Step 1 completed but {missing_file} was not created. Retry or skip?"** Also verify the response does NOT mention `04-db-schema.md` or `05-api-contracts.md` — those belong to Step 3.
 
 ## Step 2 — Technology Decisions (YOU ask the user)
 
@@ -319,6 +329,8 @@ Read the Phase 1 files in {spec_path} for context, then write these 3 files:
 3. 05-api-contracts.md — API contracts using the confirmed API style and auth
 ```
 
+**GATE CHECK:** Verify all 3 files exist: `{spec_path}/03-tech-decisions.md`, `{spec_path}/04-db-schema.md`, `{spec_path}/05-api-contracts.md`. If any is missing, mark Step 3 `[✗]` and ask: **"Step 3 completed but {missing_file} was not created. Retry or skip?"**
+
 Mark: Planning Specs → `[✓]`. Update `pipeline-state.json`: Step 3 → `"completed"`.
 
 ### Planning Approval Gate
@@ -359,6 +371,8 @@ Read 03-tech-decisions.md for the confirmed technology stack, then read all othe
 Write all source code and create {spec_path}/06-implementation-notes.md when done.
 ```
 
+**GATE CHECK:** Verify `{spec_path}/06-implementation-notes.md` exists and at least one source code file was created in `{project_root}`. If the implementation notes are missing, mark Step 4 `[✗]` and ask: **"Step 4 completed but 06-implementation-notes.md was not created. Retry or skip?"**
+
 Mark: Development Agent → `[✓]`. Update `pipeline-state.json`: Step 4 → `"completed"`.
 
 ### Development Approval Gate
@@ -388,6 +402,8 @@ spec_path: {spec_path}
 Read all spec files and source code, then produce {spec_path}/07-review-report.md
 with findings categorised by severity (CRITICAL, HIGH, MEDIUM, LOW).
 ```
+
+**GATE CHECK:** Verify `{spec_path}/07-review-report.md` exists. If missing, mark Step 5 `[✗]` and ask: **"Step 5 completed but 07-review-report.md was not created. Retry or skip?"**
 
 Mark: Code Review → `[✓]`. Update `pipeline-state.json`: Step 5 → `"completed"`.
 
@@ -431,15 +447,15 @@ Read all spec files and source code. Produce:
 - Inline docstrings on all public classes and methods
 ```
 
+**GATE CHECK:** Verify `{project_root}/README.md` exists. If missing, mark Step 7 `[✗]` and ask: **"Step 7 completed but README.md was not created. Retry or skip?"**
+
 Mark: Documentation → `[✓]`. Update `pipeline-state.json`: Step 7 → `"completed"`, top-level `status` → `"completed"`, set `completed_at`.
 
 ## MANDATORY Post-Pipeline — Codebase Snapshot
 
 **You MUST run this step after Step 7 completes and BEFORE showing the final dashboard.** This is not optional. Without it, future Feature Addition pipelines cannot work.
 
-Invoke the **"Codebase Analysis Agent"** to create the initial codebase memory.
-
-**Before invoking**, determine the actual project root path (the current working directory). Substitute it into `{project_root}` below — do NOT pass the literal string `{current working directory}`.
+Invoke the **"Codebase Analysis Agent"** to create the initial codebase memory. Use the `{project_root}` received in your Inputs.
 
 ```
 Scan the newly built project and create the codebase memory.
