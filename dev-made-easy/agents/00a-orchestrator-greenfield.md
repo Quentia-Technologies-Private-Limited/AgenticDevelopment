@@ -75,8 +75,7 @@ In Step 2, you ask 3 groups of technology questions. Each group MUST be a separa
 | Showing final dashboard without running Codebase Snapshot | MUST invoke Codebase Analysis Agent after Step 7, BEFORE showing final dashboard |
 | Writing files with wrong names (e.g., `planning-analysis.md`, `technology-decisions.md`) | File names are EXACT: `00-technical-analysis.md`, `01-product-spec.md`, `02-acceptance-criteria.md`, `03-tech-decisions.md`, `04-db-schema.md`, `05-api-contracts.md`, `06-implementation-notes.md`, `07-review-report.md` |
 | Saying "already confirmed in previous session" | If `pipeline-state.json` doesn't exist or doesn't show the step completed, it has NOT been done — do it now |
-| Using the Skill tool to invoke subagents | Use the **Agent** tool with `subagent_type` — NEVER the Skill tool |
-| Writing spec files yourself instead of dispatching to a subagent | You coordinate — subagents write files. Use the Agent tool to dispatch. |
+| Writing spec files yourself instead of dispatching to a subagent | You coordinate — subagents write files. Launch the agent and let it work. |
 
 ---
 
@@ -207,7 +206,7 @@ Update after each step: `[⟳]` IN PROGRESS, `[✓]` DONE, `[✗]` FAILED
 
 Mark: Planning Analysis → `[⟳]`
 
-Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Planning Analysis Agent` and this prompt:
+Launch the **dev-made-easy:Planning Analysis Agent** agent with this prompt:
 
 ```
 Analyze the following task and create tech-independent planning documents.
@@ -320,7 +319,7 @@ Mark: Technology Decisions → `[✓]`. Update `pipeline-state.json`: Step 2 →
 
 Mark: Planning Specs → `[⟳]`
 
-Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Planning Specs Agent` and this prompt:
+Launch the **dev-made-easy:Planning Specs Agent** agent with this prompt:
 
 ```
 Create tech-dependent planning specs using the confirmed technology decisions.
@@ -371,7 +370,7 @@ Wait for user confirmation.
 
 Mark: Development Agent → `[⟳]`
 
-Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Development Agent` and this prompt:
+Launch the **dev-made-easy:Development Agent** agent with this prompt:
 
 ```
 Implement the system described in the planning specs.
@@ -406,7 +405,7 @@ Wait for user confirmation.
 
 Mark: Code Review → `[⟳]`
 
-Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Code Review Agent` and this prompt:
+Launch the **dev-made-easy:Code Review Agent** agent with this prompt:
 
 ```
 Review the implemented code against the planning spec.
@@ -427,7 +426,7 @@ Briefly summarise findings before continuing.
 
 Mark: Testing → `[⟳]`
 
-Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Testing Agent` and this prompt:
+Launch the **dev-made-easy:Testing Agent** agent with this prompt:
 
 ```
 Test the implemented code against acceptance criteria.
@@ -447,7 +446,7 @@ Show: `Issues: {count} (MANDATORY: {n}, HIGH: {n}, MEDIUM: {n}, LOW: {n})`
 
 Mark: Documentation → `[⟳]`
 
-Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Documentation Agent` and this prompt:
+Launch the **dev-made-easy:Documentation Agent** agent with this prompt:
 
 ```
 Generate project documentation.
@@ -469,7 +468,7 @@ Mark: Documentation → `[✓]`. Update `pipeline-state.json`: Step 7 → `"comp
 
 **You MUST run this step after Step 7 completes and BEFORE showing the final dashboard.** This is not optional. Without it, future Feature Addition pipelines cannot work.
 
-Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Codebase Analysis Agent` to create the initial codebase memory. Use the `{project_root}` received in your Inputs.
+Launch the **dev-made-easy:Codebase Analysis Agent** agent to create the initial codebase memory. Use the `{project_root}` received in your Inputs.
 
 ```
 Scan the newly built project and create the codebase memory.
