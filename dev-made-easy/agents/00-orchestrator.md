@@ -124,9 +124,11 @@ Only proceed to dispatch after ALL gates pass.
 
 ## Step 4 — Dispatch
 
+**CRITICAL: You MUST use the Agent tool to dispatch.** Do NOT use the Skill tool. Do NOT execute the pipeline steps yourself. Do NOT write any spec files yourself. You are a ROUTER — your only job is to dispatch to the correct orchestrator using the Agent tool.
+
 ### If Greenfield (New Project)
 
-Invoke the agent named **"Greenfield Orchestrator"** with this prompt:
+Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Greenfield Orchestrator` and this prompt:
 
 ```
 Task description: {paste the user's full task description here}
@@ -141,7 +143,7 @@ The Greenfield Orchestrator handles the complete 7-step pipeline: Planning Analy
 
 ### If Feature Addition (Existing Project)
 
-Invoke the agent named **"Feature Addition Orchestrator"** with this prompt:
+Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Feature Addition Orchestrator` and this prompt:
 
 ```
 Task description: {paste the user's full task description here}
@@ -165,4 +167,16 @@ When the dispatched orchestrator completes, relay its final status dashboard to 
 1. **You do NOT run pipeline steps.** You only route to the correct orchestrator.
 2. **You do NOT ask technology questions.** The dispatched orchestrator handles that.
 3. **You do NOT invoke Planning, Development, or any other subagent.** Only the two orchestrators.
-4. If the dispatched orchestrator fails, relay the error to the user and ask whether to retry.
+4. **You MUST use the Agent tool** to dispatch. NEVER use the Skill tool, NEVER write spec files yourself, NEVER execute pipeline steps inline.
+5. **You do NOT write any files** except `docs/specs/pipeline-index.json` and the `{spec_path}` folder creation. All other files (analysis, specs, code, docs) are created by the dispatched orchestrator and its subagents.
+6. If the dispatched orchestrator fails, relay the error to the user and ask whether to retry.
+
+### WRONG behaviors — if you catch yourself doing any of these, STOP:
+
+| Wrong | Right |
+|-------|-------|
+| Using `Skill` tool to dispatch | Use the **Agent** tool with correct `subagent_type` |
+| Writing spec files yourself (e.g., `planning-analysis.md`, `technology-decisions.md`) | You NEVER write spec files — only the dispatched orchestrator does |
+| Choosing technologies without asking the user | You NEVER make tech decisions — the orchestrator asks the user |
+| Executing all pipeline steps inline | You dispatch to ONE orchestrator and wait for it to return |
+| Adding extra context like "user already confirmed" or "from previous session" | Pass ONLY the task description, project_root, and spec_path — nothing else |

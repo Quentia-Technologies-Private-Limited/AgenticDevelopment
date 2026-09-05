@@ -79,6 +79,8 @@ You MUST create and update `{spec_path}/pipeline-state.json` to track progress. 
 | Overwriting existing docs | Documentation Agent UPDATES existing docs |
 | Writing files with wrong names (e.g., `planning-analysis.md`, `technology-decisions.md`) | File names are EXACT: `00-technical-analysis.md`, `01-product-spec.md`, `02-acceptance-criteria.md`, `03-tech-decisions.md`, `04-db-schema.md`, `05-api-contracts.md`, `06-implementation-notes.md`, `07-review-report.md` |
 | Saying "already confirmed in previous session" | If `pipeline-state.json` doesn't exist or doesn't show the step completed, it has NOT been done — do it now |
+| Using the Skill tool to invoke subagents | Use the **Agent** tool with `subagent_type` — NEVER the Skill tool |
+| Writing spec files yourself instead of dispatching to a subagent | You coordinate — subagents write files. Use the Agent tool to dispatch. |
 
 ---
 
@@ -212,7 +214,7 @@ Update after each step: `[⟳]` IN PROGRESS, `[✓]` DONE, `[✗]` FAILED
 
 Mark: Codebase Analysis → `[⟳]`
 
-Invoke the agent named **"Codebase Analysis Agent"** with this prompt (use the `{project_root}` received in your Inputs):
+Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Codebase Analysis Agent` and this prompt (use the `{project_root}` received in your Inputs):
 
 ```
 Analyze the existing project and produce the codebase memory.
@@ -254,7 +256,7 @@ Mark: Feature Planning → `[⟳]`
 
 **First: Read `docs/codebase/00-codebase-analysis.md`.** You need to understand the existing codebase before planning.
 
-Invoke the agent named **"Planning Analysis Agent"** with this prompt:
+Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Planning Analysis Agent` and this prompt:
 
 ```
 Analyze the following feature request in the context of an EXISTING project.
@@ -363,7 +365,7 @@ Mark: Tech Gap Analysis → `[✓]`. Update `pipeline-state.json`: Step 3 → `"
 
 Mark: Feature Specs → `[⟳]`
 
-Invoke the agent named **"Planning Specs Agent"** with this prompt:
+Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Planning Specs Agent` and this prompt:
 
 ```
 Create tech-dependent planning specs for a FEATURE ADDITION to an existing project.
@@ -421,7 +423,7 @@ Wait for user confirmation.
 
 Mark: Development Agent → `[⟳]`
 
-Invoke the agent named **"Development Agent"** with this prompt:
+Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Development Agent` and this prompt:
 
 ```
 Implement the feature described in the planning specs.
@@ -461,7 +463,7 @@ Wait for user confirmation.
 
 Mark: Code Review → `[⟳]`
 
-Invoke the agent named **"Code Review Agent"** with this prompt:
+Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Code Review Agent` and this prompt:
 
 ```
 Review the implemented feature code.
@@ -487,7 +489,7 @@ Briefly summarise findings before continuing.
 
 Mark: Testing → `[⟳]`
 
-Invoke the agent named **"Testing Agent"** with this prompt:
+Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Testing Agent` and this prompt:
 
 ```
 Test the implemented feature code against acceptance criteria.
@@ -513,7 +515,7 @@ Show: `Issues: {count} (MANDATORY: {n}, HIGH: {n}, MEDIUM: {n}, LOW: {n})`
 
 Mark: Documentation → `[⟳]`
 
-Invoke the agent named **"Documentation Agent"** with this prompt:
+Use the **Agent** tool with `subagent_type` set to `dev-made-easy:Documentation Agent` and this prompt:
 
 ```
 Document the new feature.
@@ -533,7 +535,7 @@ Mark: Documentation → `[✓]`. Update `pipeline-state.json`: Step 8 → `"comp
 
 ## Post-Pipeline — Update Codebase Memory (automatic)
 
-After all 8 steps complete and before showing the final dashboard, invoke the **"Codebase Analysis Agent"** in update mode to reflect what was just built. This is NOT a numbered pipeline step — it runs automatically.
+After all 8 steps complete and before showing the final dashboard, use the **Agent** tool with `subagent_type` set to `dev-made-easy:Codebase Analysis Agent` in update mode to reflect what was just built. This is NOT a numbered pipeline step — it runs automatically.
 
 ```
 Update the codebase memory to reflect the newly added feature.
