@@ -4,7 +4,7 @@ A multi-agent development pipeline for Claude Code. Supports two modes: **Greenf
 
 ## Architecture
 
-![Architecture Diagram](docs/architecture.svg)
+![Architecture Diagram](dev-made-easy/docs/architecture.svg)
 
 The Orchestrator asks you upfront: **new project** or **feature addition**?
 
@@ -106,9 +106,9 @@ model: claude-opus-4-6      ← change this per-agent to suit cost/quality needs
 
 ## Getting Started
 
-- [Installation](how-to-use/installation.md)
-- [Updating](how-to-use/updating.md)
-- [Uninstallation](how-to-use/uninstallation.md)
+- [Installation](dev-made-easy/how-to-use/installation.md)
+- [Updating](dev-made-easy/how-to-use/updating.md)
+- [Uninstallation](dev-made-easy/how-to-use/uninstallation.md)
 
 ## Usage
 
@@ -261,7 +261,7 @@ All agents use `claude-opus-4-6` by default. To switch models, edit the `model:`
 
 Want to add a pipeline for a different domain (Design, Data Engineering, DevOps, Mobile)?
 
-See **[docs/README.md](./docs/AddUrOwnOrchestrator.md)** — a step-by-step guide with templates for creating your own orchestrator and subagents, registering with the router, and testing.
+See **[Creating a Vertical](dev-made-easy/docs/AddUrOwnOrchestrator.md)** — a step-by-step guide with templates for creating your own orchestrator and subagents, registering with the router, and testing.
 
 ### How to create or extend your own plugin
 
