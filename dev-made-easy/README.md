@@ -2,27 +2,14 @@
 
 A multi-agent development pipeline for Claude Code. Supports two modes: **Greenfield** (new projects) and **Feature Addition** (existing projects). Takes a task description from planning through implementation, code review, testing, and documentation — producing structured artifacts at every stage.
 
-## What It Does
+## Architecture
+
+![Architecture Diagram](docs/architecture.svg)
 
 The Orchestrator asks you upfront: **new project** or **feature addition**?
 
-### Greenfield Mode (New Project — 7 steps)
-
-```
-Orchestrator → Planning Analysis Agent → [TECH DECISIONS] → Planning Specs Agent
-            → [YOUR REVIEW] → Development → [YOUR REVIEW]
-            → Code Review → Testing → Documentation
-```
-
-### Feature Addition Mode (Existing Project — 8 steps)
-
-```
-Orchestrator → Codebase Analysis Agent → Planning Analysis Agent → [TECH GAP ANALYSIS]
-            → Planning Specs Agent → [YOUR REVIEW] → Development → [YOUR REVIEW]
-            → Code Review → Testing → Documentation
-```
-
-In Feature Addition mode, the pipeline first scans your existing codebase, then plans the feature in context, only asks about tech gaps (not the full stack), and ensures all new code follows your existing patterns.
+- **Greenfield** (7 steps) — plans from scratch, asks all tech decisions, builds everything
+- **Feature Addition** (8 steps) — scans existing codebase first, only asks about tech gaps, produces incremental changes
 
 | Agent | Role | Output |
 |-------|------|--------|
@@ -61,7 +48,15 @@ dev-made-easy/               ← this repo IS the plugin
 │   ├── 03-code-review.md
 │   ├── 04-testing.md
 │   └── 05-documentation.md
-└── install.sh               ← manual fallback installer
+├── docs/
+│   ├── architecture.svg     ← pipeline architecture diagram
+│   ├── architecture.png     ← same diagram in PNG format
+│   └── AddUrOwnOrchestrator.md  ← guide to creating custom pipelines
+├── how-to-use/
+│   ├── installation.md      ← install via plugin system or install.sh
+│   ├── updating.md          ← pull + cache sync + reload
+│   └── uninstallation.md    ← remove plugin and cleanup
+└── install.sh               ← manual fallback installer + cache sync
 ```
 
 ### How installation works
@@ -109,67 +104,11 @@ model: claude-opus-4-6      ← change this per-agent to suit cost/quality needs
 - [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code)
 - Claude account with API access
 
-## Installation
+## Getting Started
 
-This repo is a proper Claude Code plugin. It contains a `.claude-plugin/plugin.json` manifest that Claude Code reads natively via its plugin system.
-
-### Recommended — Claude Code plugin install (official)
-
-```bash
-# 1. Clone into Claude's skills directory
-git clone https://github.com/Quentia-Technologies-Private-Limited/AgenticDevelopment.git ~/.claude/skills/agentic-development
-
-# 2. Register the marketplace (one-time setup)
-claude plugin marketplace add ~/.claude/skills/agentic-development/dev-made-easy --scope user
-
-# 3. Install the plugin
-claude plugin install dev-made-easy@agentic-development --scope user
-```
-
-**4. Activate inside Claude Code** — open Claude Code in any project (`claude` in terminal), then run:
-
-```
-/reload-plugins
-```
-
-```bash
-# 5. Verify it loaded
-claude plugin list
-```
-
-**Install scopes:**
-
-| Scope | Command | Effect |
-|-------|---------|--------|
-| `user` | `--scope user` | Available in all your projects (default) |
-| `project` | `--scope project` | This project only — committed to repo, shared with team |
-| `local` | `--scope local` | This project only — not committed, not shared |
-
-```bash
-# Project scope (team shared)
-claude plugin marketplace add ~/.claude/skills/agentic-development/dev-made-easy --scope project
-claude plugin install dev-made-easy@agentic-development --scope project
-
-# Local scope (personal, not committed)
-claude plugin marketplace add ~/.claude/skills/agentic-development/dev-made-easy --scope local
-claude plugin install dev-made-easy@agentic-development --scope local
-```
-
-### Alternative — manual install script
-
-If you prefer not to use the plugin system, the included `install.sh` copies agent files directly:
-
-```bash
-git clone https://github.com/Quentia-Technologies-Private-Limited/AgenticDevelopment.git
-cd AgenticDevelopment/dev-made-easy
-
-bash install.sh --global               # ~/.claude/agents/ — all projects
-bash install.sh --local                # .claude/agents/  — current project only
-bash install.sh --path /path/to/repo   # <path>/.claude/agents/ — another repo
-bash install.sh                        # interactive prompt
-```
-
-> The plugin install method is preferred as Claude Code manages versioning and scope automatically.
+- [Installation](how-to-use/installation.md)
+- [Updating](how-to-use/updating.md)
+- [Uninstallation](how-to-use/uninstallation.md)
 
 ## Usage
 
@@ -317,87 +256,6 @@ All agents use `claude-opus-4-6` by default. To switch models, edit the `model:`
 | `agents/03-code-review.md` | Code Review Agent | Greenfield Step 5 / Feature Addition Step 6: code review |
 | `agents/04-testing.md` | Testing Agent | Greenfield Step 6 / Feature Addition Step 7: testing |
 | `agents/05-documentation.md` | Documentation Agent | Greenfield Step 7 / Feature Addition Step 8: documentation |
-
-## Updating the Plugin
-
-When new agent versions are pushed to the repository, run these 4 steps to pick up the changes:
-
-```bash
-# 1. Pull latest from GitHub into your local clone
-cd ~/.claude/skills/agentic-development && git pull
-
-# 2. Force-clear the plugin cache (IMPORTANT — claude plugin update alone is unreliable)
-cp ~/.claude/skills/agentic-development/dev-made-easy/agents/*.md \
-   ~/.claude/plugins/cache/agentic-development/dev-made-easy/1.0.0/agents/
-
-# 3. Also run the official update command (for metadata/manifest changes)
-claude plugin update dev-made-easy@agentic-development
-```
-
-Then inside your Claude Code session:
-
-```
-# 4. Reload plugins to activate
-/reload-plugins
-```
-
-**Why 4 steps?**
-
-| Step | What it does | Without it |
-|------|-------------|------------|
-| `git pull` | Updates the local clone from GitHub | Local clone still has old agent files |
-| `cp ... agents/` | Force-copies agent files into the plugin cache | **Cache keeps stale agents** even after `plugin update` |
-| `plugin update` | Updates plugin metadata and manifest | Manifest may be out of date |
-| `/reload-plugins` | Loads the updated cache into the active session | Session still runs old agents |
-
-> **Why is step 2 needed?** `claude plugin update` does not always copy updated agent files into the plugin cache at `~/.claude/plugins/cache/`. The `cp` command guarantees the cache has the latest agents. This is a known workaround.
-
-### Verify the update worked
-
-After completing all 4 steps, verify the cache matches the source:
-
-```bash
-# Should produce no output (no differences)
-diff ~/.claude/skills/agentic-development/dev-made-easy/agents/00-orchestrator.md \
-     ~/.claude/plugins/cache/agentic-development/dev-made-easy/1.0.0/agents/00-orchestrator.md
-```
-
-> You never need to uninstall/reinstall unless `marketplace.json` or `plugin.json` structure changes.
-
-## Uninstallation
-
-### Claude Code plugin uninstall (if installed via plugin system)
-
-```bash
-# Step 1 — Uninstall the plugin
-claude plugin uninstall dev-made-easy@agentic-development --scope user
-
-# Step 2 — Remove the marketplace registration
-claude plugin marketplace remove agentic-development
-
-# Step 3 — Optionally delete the cloned repo
-rm -rf ~/.claude/skills/agentic-development
-```
-
-If you installed with a different scope, use the matching scope in step 1:
-
-```bash
-# Project scope
-claude plugin uninstall dev-made-easy@agentic-development --scope project
-
-# Local scope
-claude plugin uninstall dev-made-easy@agentic-development --scope local
-```
-
-### Manual uninstall (if installed via install.sh)
-
-```bash
-cd ~/.claude/skills/agentic-development/dev-made-easy
-
-bash install.sh --uninstall --global         # remove from ~/.claude/agents/
-bash install.sh --uninstall --local          # remove from .claude/agents/ in current project
-bash install.sh --uninstall --path /path/to/repo  # remove from a specific repo
-```
 
 ### How to create a new vertical (custom pipeline)
 
