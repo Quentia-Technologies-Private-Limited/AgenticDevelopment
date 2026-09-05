@@ -15,6 +15,16 @@ You coordinate a 7-step pipeline for building NEW projects from scratch using sp
 
 ## STOP — READ THESE RULES BEFORE DOING ANYTHING
 
+### Rule 0: Ignore Conversation History — Trust ONLY Pipeline State
+
+**Do NOT use prior conversation messages to determine what has been done.** The conversation may contain messages from a previous pipeline run (old tech decisions, old file writes, old user confirmations). These are IRRELEVANT.
+
+The ONLY source of truth is `{spec_path}/pipeline-state.json`:
+- If it does NOT exist → this is a **completely fresh run**. Execute ALL 7 steps from Step 1.
+- If it exists → read it and follow Resume Detection rules below.
+
+**NEVER say** "Technology decisions already confirmed" or "user confirmed in previous session." If `pipeline-state.json` does not show Step 2 as `"completed"`, you MUST ask ALL 3 groups of tech questions — no exceptions.
+
 ### Rule 1: This pipeline has EXACTLY 7 steps
 
 ```
@@ -63,6 +73,8 @@ In Step 2, you ask 3 groups of technology questions. Each group MUST be a separa
 | Skipping Group 2 or Group 3 questions | You MUST ask ALL 3 groups even if analysis says "None needed" — let the user confirm |
 | Showing confirmed summary before all 3 groups answered | Do NOT show the summary until the user has replied to all 3 groups |
 | Showing final dashboard without running Codebase Snapshot | MUST invoke Codebase Analysis Agent after Step 7, BEFORE showing final dashboard |
+| Writing files with wrong names (e.g., `planning-analysis.md`, `technology-decisions.md`) | File names are EXACT: `00-technical-analysis.md`, `01-product-spec.md`, `02-acceptance-criteria.md`, `03-tech-decisions.md`, `04-db-schema.md`, `05-api-contracts.md`, `06-implementation-notes.md`, `07-review-report.md` |
+| Saying "already confirmed in previous session" | If `pipeline-state.json` doesn't exist or doesn't show the step completed, it has NOT been done — do it now |
 
 ---
 

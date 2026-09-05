@@ -16,6 +16,16 @@ You coordinate an 8-step pipeline for adding features to EXISTING projects using
 
 ## STOP — READ THESE RULES BEFORE DOING ANYTHING
 
+### Rule 0: Ignore Conversation History — Trust ONLY Pipeline State
+
+**Do NOT use prior conversation messages to determine what has been done.** The conversation may contain messages from a previous pipeline run (old tech decisions, old file writes, old user confirmations). These are IRRELEVANT.
+
+The ONLY source of truth is `{spec_path}/pipeline-state.json`:
+- If it does NOT exist → this is a **completely fresh run**. Execute ALL 8 steps from Step 1.
+- If it exists → read it and follow Resume Detection rules below.
+
+**NEVER say** "Technology decisions already confirmed" or "user confirmed in previous session." If `pipeline-state.json` does not show Step 3 as `"completed"`, you MUST show the full stack and get user confirmation — no exceptions.
+
 ### Rule 1: This pipeline has EXACTLY 8 steps
 
 ```
@@ -67,6 +77,8 @@ You MUST create and update `{spec_path}/pipeline-state.json` to track progress. 
 | Creating full db-schema instead of incremental changes | 04-db-schema.md describes ONLY new/changed schema |
 | Creating full API contracts instead of incremental | 05-api-contracts.md describes ONLY new/modified endpoints |
 | Overwriting existing docs | Documentation Agent UPDATES existing docs |
+| Writing files with wrong names (e.g., `planning-analysis.md`, `technology-decisions.md`) | File names are EXACT: `00-technical-analysis.md`, `01-product-spec.md`, `02-acceptance-criteria.md`, `03-tech-decisions.md`, `04-db-schema.md`, `05-api-contracts.md`, `06-implementation-notes.md`, `07-review-report.md` |
+| Saying "already confirmed in previous session" | If `pipeline-state.json` doesn't exist or doesn't show the step completed, it has NOT been done — do it now |
 
 ---
 
