@@ -62,6 +62,7 @@ In Step 2, you ask 3 groups of technology questions. Each group MUST be a separa
 | Asking all 3 groups in one message | Ask Group 1, STOP, wait for reply. Then Group 2, STOP, wait. Then Group 3, STOP, wait. THREE separate messages. |
 | Skipping Group 2 or Group 3 questions | You MUST ask ALL 3 groups even if analysis says "None needed" — let the user confirm |
 | Showing confirmed summary before all 3 groups answered | Do NOT show the summary until the user has replied to all 3 groups |
+| Showing final dashboard without running Codebase Snapshot | MUST invoke Codebase Analysis Agent after Step 7, BEFORE showing final dashboard |
 
 ---
 
@@ -203,7 +204,7 @@ Report back: a summary of key findings from the technical analysis.
 
 Mark: Planning Analysis → `[✓]`
 
-**VERIFY:** The response should mention `00-technical-analysis.md`. If it mentions `03-db-schema.md` or `04-api-contracts.md`, something went wrong.
+**VERIFY:** The response should mention `00-technical-analysis.md`. If it mentions `04-db-schema.md` or `05-api-contracts.md`, something went wrong.
 
 ## Step 2 — Technology Decisions (YOU ask the user)
 
@@ -313,9 +314,9 @@ Technology decisions confirmed by the user:
 - Docker: {yes/no}
 
 Read the Phase 1 files in {spec_path} for context, then write these 3 files:
-1. tech-decisions.md — record the confirmed technology choices
-2. 03-db-schema.md — database schema using the confirmed database
-3. 04-api-contracts.md — API contracts using the confirmed API style and auth
+1. 03-tech-decisions.md — record the confirmed technology choices
+2. 04-db-schema.md — database schema using the confirmed database
+3. 05-api-contracts.md — API contracts using the confirmed API style and auth
 ```
 
 Mark: Planning Specs → `[✓]`. Update `pipeline-state.json`: Step 3 → `"completed"`.
@@ -330,9 +331,9 @@ Mark: Planning Specs → `[✓]`. Update `pipeline-state.json`: Step 3 → `"com
     ✓ 00-technical-analysis.md   (Analysis)
     ✓ 01-product-spec.md         (Analysis)
     ✓ 02-acceptance-criteria.md  (Analysis)
-    ✓ tech-decisions.md          (Specs)
-    ✓ 03-db-schema.md            (Specs)
-    ✓ 04-api-contracts.md        (Specs)
+    ✓ 03-tech-decisions.md          (Specs)
+    ✓ 04-db-schema.md            (Specs)
+    ✓ 05-api-contracts.md        (Specs)
 ═══════════════════════════════════════════════════════
   Review the artifacts. Type "proceed" or describe changes.
 ═══════════════════════════════════════════════════════
@@ -351,11 +352,11 @@ Implement the system described in the planning specs.
 
 spec_path: {spec_path}
 
-Read tech-decisions.md for the confirmed technology stack, then read all other spec files
-(00-technical-analysis.md, 01-product-spec.md, 02-acceptance-criteria.md, 03-db-schema.md,
-04-api-contracts.md) for the full system design.
+Read 03-tech-decisions.md for the confirmed technology stack, then read all other spec files
+(00-technical-analysis.md, 01-product-spec.md, 02-acceptance-criteria.md, 04-db-schema.md,
+05-api-contracts.md) for the full system design.
 
-Write all source code and create {spec_path}/05-implementation-notes.md when done.
+Write all source code and create {spec_path}/06-implementation-notes.md when done.
 ```
 
 Mark: Development Agent → `[✓]`. Update `pipeline-state.json`: Step 4 → `"completed"`.
@@ -366,7 +367,7 @@ Mark: Development Agent → `[✓]`. Update `pipeline-state.json`: Step 4 → `"
 ═══════════════════════════════════════════════════════
   Development Complete — Review Required
 ═══════════════════════════════════════════════════════
-  Implementation notes: {spec_path}/05-implementation-notes.md
+  Implementation notes: {spec_path}/06-implementation-notes.md
   Type "proceed" or describe changes.
 ═══════════════════════════════════════════════════════
 ```
@@ -384,7 +385,7 @@ Review the implemented code against the planning spec.
 
 spec_path: {spec_path}
 
-Read all spec files and source code, then produce {spec_path}/06-review-report.md
+Read all spec files and source code, then produce {spec_path}/07-review-report.md
 with findings categorised by severity (CRITICAL, HIGH, MEDIUM, LOW).
 ```
 
@@ -403,7 +404,7 @@ Test the implemented code against acceptance criteria.
 
 spec_path: {spec_path}
 
-Read 02-acceptance-criteria.md, 04-api-contracts.md, 06-review-report.md, and all source code.
+Read 02-acceptance-criteria.md, 05-api-contracts.md, 07-review-report.md, and all source code.
 Run unit tests, integration tests, and acceptance criteria tests.
 Log each defect as {spec_path}/issues/issue-{NNN}.md with triage scores.
 ```
@@ -432,9 +433,11 @@ Read all spec files and source code. Produce:
 
 Mark: Documentation → `[✓]`. Update `pipeline-state.json`: Step 7 → `"completed"`, top-level `status` → `"completed"`, set `completed_at`.
 
-## Post-Pipeline — Codebase Snapshot (automatic)
+## MANDATORY Post-Pipeline — Codebase Snapshot
 
-After all 7 steps complete and before showing the final dashboard, invoke the **"Codebase Analysis Agent"** to create the initial codebase memory. This is NOT a numbered pipeline step — it runs automatically.
+**You MUST run this step after Step 7 completes and BEFORE showing the final dashboard.** This is not optional. Without it, future Feature Addition pipelines cannot work.
+
+Invoke the **"Codebase Analysis Agent"** to create the initial codebase memory.
 
 **Before invoking**, determine the actual project root path (the current working directory). Substitute it into `{project_root}` below — do NOT pass the literal string `{current working directory}`.
 
@@ -460,6 +463,8 @@ This snapshot enables future Feature Addition pipelines to start with full codeb
 
 ## Pipeline Complete
 
+**BEFORE showing this dashboard**, verify that `{project_root}/docs/codebase/00-codebase-analysis.md` exists. If it does NOT exist, you skipped the Codebase Snapshot step — go back and run it NOW.
+
 ```
 ═══════════════════════════════════════════════════════
   Pipeline Complete — Greenfield
@@ -471,8 +476,10 @@ This snapshot enables future Feature Addition pipelines to start with full codeb
   [✓] 5. Code Review Agent        DONE
   [✓] 6. Testing Agent            DONE
   [✓] 7. Documentation Agent      DONE
+  [✓] Codebase Snapshot           DONE
 ═══════════════════════════════════════════════════════
   Artifacts: {spec_path}
+  Codebase: {project_root}/docs/codebase/
   Issues: {total} ({mandatory} MANDATORY)
 ═══════════════════════════════════════════════════════
 ```

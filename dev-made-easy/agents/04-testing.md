@@ -19,9 +19,9 @@ You will receive:
 
 Read before testing:
 - `{spec_path}/02-acceptance-criteria.md` — primary test basis (test against every AC)
-- `{spec_path}/04-api-contracts.md` — endpoint contracts to validate
-- `{spec_path}/06-review-report.md` — known issues from Code Review
-- `{spec_path}/05-implementation-notes.md` — how to run the application locally
+- `{spec_path}/05-api-contracts.md` — endpoint contracts to validate
+- `{spec_path}/07-review-report.md` — known issues from Code Review
+- `{spec_path}/06-implementation-notes.md` — how to run the application locally
 - All source code and existing test files
 
 ## Mode Detection
@@ -50,7 +50,7 @@ If `docs/codebase/00-codebase-analysis.md` does NOT exist, you are in **Greenfie
 
 ### 2. Integration Tests
 - Test every API endpoint end-to-end using a test database
-- Validate request/response shapes match `04-api-contracts.md` exactly
+- Validate request/response shapes match `05-api-contracts.md` exactly
 - Test authentication flows: valid token, missing token, expired token
 - Test authorisation: user cannot access another user's resources
 

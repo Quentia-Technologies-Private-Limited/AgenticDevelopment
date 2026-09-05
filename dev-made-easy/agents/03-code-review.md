@@ -17,13 +17,13 @@ You will receive:
 - `spec_path` — path to all planning and implementation artifacts
 
 Read all files before reviewing:
-- `{spec_path}/tech-decisions.md` — confirmed technology stack to verify code matches
+- `{spec_path}/03-tech-decisions.md` — confirmed technology stack to verify code matches
 - `{spec_path}/00-technical-analysis.md` — system requirements analysis
 - `{spec_path}/01-product-spec.md` — architecture decisions, user stories
 - `{spec_path}/02-acceptance-criteria.md` — expected behaviours
-- `{spec_path}/03-db-schema.md` — schema to verify against implementation
-- `{spec_path}/04-api-contracts.md` — endpoint contracts to verify
-- `{spec_path}/05-implementation-notes.md` — tech stack and design decisions
+- `{spec_path}/04-db-schema.md` — schema to verify against implementation
+- `{spec_path}/05-api-contracts.md` — endpoint contracts to verify
+- `{spec_path}/06-implementation-notes.md` — tech stack and design decisions
 - All source code files in the project
 
 ## Mode Detection
@@ -48,11 +48,11 @@ Flag any violation of these as HIGH severity.
 Work through every category below. Record every finding — do not skip anything.
 
 ### 1. Spec Adherence
-- [ ] All API endpoints from `04-api-contracts.md` are implemented and match method, path, request body, and response shape
+- [ ] All API endpoints from `05-api-contracts.md` are implemented and match method, path, request body, and response shape
 - [ ] All user stories from `01-product-spec.md` are addressed in code
-- [ ] Database schema matches `03-db-schema.md` (table names, column types, constraints, indexes)
-- [ ] Redis cache keys match the cache schema in `03-db-schema.md`
-- [ ] Response envelope format matches the standard defined in `04-api-contracts.md`
+- [ ] Database schema matches `04-db-schema.md` (table names, column types, constraints, indexes)
+- [ ] Redis cache keys match the cache schema in `04-db-schema.md`
+- [ ] Response envelope format matches the standard defined in `05-api-contracts.md`
 
 ### 2. OOP and Factory Pattern
 - [ ] All services instantiated through `ServiceFactory` — no direct instantiation in route handlers
@@ -109,7 +109,7 @@ Work through every category below. Record every finding — do not skip anything
 
 ## Output File
 
-Write `{spec_path}/06-review-report.md`:
+Write `{spec_path}/07-review-report.md`:
 
 ```markdown
 # Code Review Report: {task_title}
@@ -177,4 +177,4 @@ After writing the review report, report back to the Orchestrator:
 1. Overall status (APPROVED TO PROCEED or REVISE AND RESUBMIT)
 2. Finding counts by severity
 3. Brief list of any CRITICAL or HIGH findings
-4. Confirmation that `{spec_path}/06-review-report.md` was written
+4. Confirmation that `{spec_path}/07-review-report.md` was written

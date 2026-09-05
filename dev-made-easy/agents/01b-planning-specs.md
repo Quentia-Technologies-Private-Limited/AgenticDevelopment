@@ -36,9 +36,9 @@ Before writing, read the Phase 1 files for context:
 
 If the Orchestrator's prompt mentions "Feature Addition" or references a `00-codebase-analysis.md`, you are in **Feature Addition mode**. In this mode:
 - Read `docs/codebase/00-codebase-analysis.md` FIRST to understand the existing codebase
-- `tech-decisions.md` should record the FULL stack (existing + new), marking new additions with `[NEW]`
-- `03-db-schema.md` should describe ONLY new tables and schema changes (new columns, ALTER TABLE, new indexes). Reference existing tables by name but do NOT redefine them.
-- `04-api-contracts.md` should describe ONLY new or modified endpoints. Reference existing endpoints by name but do NOT redefine them.
+- `03-tech-decisions.md` should record the FULL stack (existing + new), marking new additions with `[NEW]`
+- `04-db-schema.md` should describe ONLY new tables and schema changes (new columns, ALTER TABLE, new indexes). Reference existing tables by name but do NOT redefine them.
+- `05-api-contracts.md` should describe ONLY new or modified endpoints. Reference existing endpoints by name but do NOT redefine them.
 
 If the prompt does NOT mention Feature Addition, you are in **Greenfield mode** (default behavior — define everything from scratch).
 
@@ -49,7 +49,7 @@ If the prompt does NOT mention Feature Addition, you are in **Greenfield mode** 
 - Repository Pattern — separate data access from business logic
 - Layer Separation: API → Service → Repository → Database
 
-## Step 1 — Write `{spec_path}/tech-decisions.md`
+## Step 1 — Write `{spec_path}/03-tech-decisions.md`
 
 Record the confirmed technology choices:
 
@@ -90,7 +90,7 @@ Record the confirmed technology choices:
 - Docker: {Yes/No}
 ```
 
-## Step 2 — Write `{spec_path}/03-db-schema.md`
+## Step 2 — Write `{spec_path}/04-db-schema.md`
 
 Use the confirmed database from tech-decisions for all types and syntax.
 
@@ -131,7 +131,7 @@ CREATE UNIQUE INDEX uq_{table}_{column} ON {table}({column});
 | {entity}:{id} | Hash | 3600s | {purpose} |
 ```
 
-## Step 3 — Write `{spec_path}/04-api-contracts.md`
+## Step 3 — Write `{spec_path}/05-api-contracts.md`
 
 Use the confirmed API style and auth method from tech-decisions.
 
@@ -210,7 +210,7 @@ API versioned via URL prefix (/api/v1).
 
 Report to the Orchestrator:
 
-1. **Files created**: `tech-decisions.md`, `03-db-schema.md`, `04-api-contracts.md`
+1. **Files created**: `03-tech-decisions.md`, `04-db-schema.md`, `05-api-contracts.md`
 2. **Key decisions**: {summary of architectural choices}
 3. **Assumptions**: {any assumptions made}
 4. **Risks**: {anything the Development Agent should watch for}

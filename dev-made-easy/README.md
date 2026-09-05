@@ -31,9 +31,9 @@ In Feature Addition mode, the pipeline first scans your existing codebase, then 
 | Feature Addition Orchestrator | Coordinates 8-step pipeline for existing projects, does tech gap analysis | Status dashboard |
 | Codebase Analysis Agent | Scans existing project: tech stack, patterns, schema, API, tests. Outputs to `docs/codebase/` | `00-codebase-analysis.md` + `codebase-graph.json` |
 | Planning Analysis Agent | System analysis, product spec, acceptance criteria (tech-independent) | `00-technical-analysis.md`, `01-product-spec.md`, `02-acceptance-criteria.md` |
-| Planning Specs Agent | DB schema, API contracts using confirmed tech stack (tech-dependent) | `tech-decisions.md`, `03-db-schema.md`, `04-api-contracts.md` |
+| Planning Specs Agent | DB schema, API contracts using confirmed tech stack (tech-dependent) | `03-tech-decisions.md`, `04-db-schema.md`, `05-api-contracts.md` |
 | Development Agent | Implements code, follows existing patterns in Feature Addition mode | Source code + implementation notes |
-| Code Review Agent | Reviews against spec, security, quality, and codebase consistency | `06-review-report.md` |
+| Code Review Agent | Reviews against spec, security, quality, and codebase consistency | `07-review-report.md` |
 | Testing Agent | Tests against acceptance criteria, triages issues | `issues/issue-NNN.md` per bug |
 | Documentation Agent | README, API docs, CHANGELOG, docstrings (updates existing docs in Feature Addition) | Project documentation |
 
@@ -235,11 +235,11 @@ docs/specs/{task_title}/
 ├── 00-technical-analysis.md    ← system analysis for tech recommendations
 ├── 01-product-spec.md          ← product spec and user stories
 ├── 02-acceptance-criteria.md   ← Given/When/Then acceptance criteria
-├── tech-decisions.md           ← confirmed technology choices
-├── 03-db-schema.md             ← full database schema
-├── 04-api-contracts.md         ← full API contracts
-├── 05-implementation-notes.md
-├── 06-review-report.md
+├── 03-tech-decisions.md           ← confirmed technology choices
+├── 04-db-schema.md             ← full database schema
+├── 05-api-contracts.md         ← full API contracts
+├── 06-implementation-notes.md
+├── 07-review-report.md
 └── issues/
     ├── issue-001.md
     └── issue-002.md
@@ -256,11 +256,11 @@ docs/specs/{feature_name}/              ← feature-specific specs
 ├── 00-technical-analysis.md            ← feature analysis referencing existing codebase
 ├── 01-product-spec.md                  ← feature-scoped product spec
 ├── 02-acceptance-criteria.md           ← feature-scoped acceptance criteria
-├── tech-decisions.md                   ← full stack (existing + new, marked)
-├── 03-db-schema.md                     ← incremental schema changes only
-├── 04-api-contracts.md                 ← new/modified endpoints only
-├── 05-implementation-notes.md
-├── 06-review-report.md
+├── 03-tech-decisions.md                   ← full stack (existing + new, marked)
+├── 04-db-schema.md                     ← incremental schema changes only
+├── 05-api-contracts.md                 ← new/modified endpoints only
+├── 06-implementation-notes.md
+├── 07-review-report.md
 └── issues/
     ├── issue-001.md
     └── issue-002.md

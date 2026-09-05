@@ -64,8 +64,8 @@ You MUST create and update `{spec_path}/pipeline-state.json` to track progress. 
 | Saying "Development Agent will ask tech questions" | YOU handle tech gap analysis in Step 3 |
 | Invoking "Planning Agent" | Invoke "Planning Analysis Agent" or "Planning Specs Agent" |
 | Skipping Codebase Analysis | MUST run it in Step 1 before anything else |
-| Creating full db-schema instead of incremental changes | 03-db-schema.md describes ONLY new/changed schema |
-| Creating full API contracts instead of incremental | 04-api-contracts.md describes ONLY new/modified endpoints |
+| Creating full db-schema instead of incremental changes | 04-db-schema.md describes ONLY new/changed schema |
+| Creating full API contracts instead of incremental | 05-api-contracts.md describes ONLY new/modified endpoints |
 | Overwriting existing docs | Documentation Agent UPDATES existing docs |
 
 ---
@@ -259,7 +259,7 @@ Report back: the spec_path, and a summary of key findings including what new tec
 
 Mark: Feature Planning → `[✓]`. Update `pipeline-state.json`: Step 2 → `"completed"`.
 
-**VERIFY:** The response should mention `00-technical-analysis.md`. If it mentions `03-db-schema.md` or `04-api-contracts.md`, something went wrong.
+**VERIFY:** The response should mention `00-technical-analysis.md`. If it mentions `04-db-schema.md` or `05-api-contracts.md`, something went wrong.
 
 ## Step 3 — Tech Gap Analysis (YOU ask the user)
 
@@ -364,9 +364,9 @@ Technology stack (existing + new):
 {any new tech additions}
 
 Read the codebase profile and Phase 1 files in {spec_path} for context, then write these 3 files:
-1. tech-decisions.md — record the full technology stack (existing + new), marking what is new
-2. 03-db-schema.md — describe ONLY new tables and migration changes (ALTER TABLE, new indexes, new columns). Reference existing tables by name but do not redefine them.
-3. 04-api-contracts.md — describe ONLY new or modified endpoints. Reference existing endpoints by name but do not redefine them.
+1. 03-tech-decisions.md — record the full technology stack (existing + new), marking what is new
+2. 04-db-schema.md — describe ONLY new tables and migration changes (ALTER TABLE, new indexes, new columns). Reference existing tables by name but do not redefine them.
+3. 05-api-contracts.md — describe ONLY new or modified endpoints. Reference existing endpoints by name but do not redefine them.
 ```
 
 Mark: Feature Specs → `[✓]`. Update `pipeline-state.json`: Step 4 → `"completed"`.
@@ -384,9 +384,9 @@ Mark: Feature Specs → `[✓]`. Update `pipeline-state.json`: Step 4 → `"comp
     ✓ 00-technical-analysis.md   (Feature Analysis)
     ✓ 01-product-spec.md         (Feature Spec)
     ✓ 02-acceptance-criteria.md  (Acceptance Criteria)
-    ✓ tech-decisions.md          (Tech Decisions)
-    ✓ 03-db-schema.md            (Schema Changes)
-    ✓ 04-api-contracts.md        (API Changes)
+    ✓ 03-tech-decisions.md          (Tech Decisions)
+    ✓ 04-db-schema.md            (Schema Changes)
+    ✓ 05-api-contracts.md        (API Changes)
 ═══════════════════════════════════════════════════════
   Review the artifacts. Type "proceed" or describe changes.
 ═══════════════════════════════════════════════════════
@@ -425,7 +425,7 @@ Mark: Development Agent → `[✓]`. Update `pipeline-state.json`: Step 5 → `"
 ═══════════════════════════════════════════════════════
   Development Complete — Review Required
 ═══════════════════════════════════════════════════════
-  Implementation notes: {spec_path}/05-implementation-notes.md
+  Implementation notes: {spec_path}/06-implementation-notes.md
   Type "proceed" or describe changes.
 ═══════════════════════════════════════════════════════
 ```
@@ -474,7 +474,7 @@ IMPORTANT: This is a Feature Addition to an existing project. In addition to sta
 - New feature code integrates correctly with existing services, models, and endpoints
 - Existing API endpoints still return the same response shapes and status codes
 
-Read 02-acceptance-criteria.md, 04-api-contracts.md, 06-review-report.md, and all source code.
+Read 02-acceptance-criteria.md, 05-api-contracts.md, 07-review-report.md, and all source code.
 Log each defect as {spec_path}/issues/issue-{NNN}.md with triage scores.
 ```
 

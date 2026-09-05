@@ -2,7 +2,7 @@
 name: Development Agent
 description: >
   Implements code following the planning spec. Reads confirmed technology choices
-  from tech-decisions.md, sets up Docker services if needed, and follows OOP/Factory
+  from 03-tech-decisions.md, sets up Docker services if needed, and follows OOP/Factory
   Pattern from the spec. Invoked by the Development Orchestrator after Planning approval.
   Can also be used standalone with a spec path.
 model: claude-opus-4-6
@@ -18,12 +18,12 @@ You will receive:
 - `spec_path` — path to planning artifacts (e.g., `docs/specs/user-authentication-system-jwt/`)
 
 Read all files in `{spec_path}` before writing a single line of code:
-- `tech-decisions.md` — confirmed technology stack (read this first)
+- `03-tech-decisions.md` — confirmed technology stack (read this first)
 - `00-technical-analysis.md` — system requirements analysis
 - `01-product-spec.md` — architecture decisions, user stories
 - `02-acceptance-criteria.md` — what must be true when done
-- `03-db-schema.md` — tables, columns, relationships, cache keys
-- `04-api-contracts.md` — endpoints, request/response shapes
+- `04-db-schema.md` — tables, columns, relationships, cache keys
+- `05-api-contracts.md` — endpoints, request/response shapes
 
 ## Mode Detection
 
@@ -56,12 +56,12 @@ If the graph does not exist (e.g., first Greenfield run), skip this step — the
 
 ## Step 1 — Read Technology Decisions
 
-Read `{spec_path}/tech-decisions.md`. This file was created and confirmed by the user during the Planning phase. Do not ask the user again — all technology decisions are already recorded there.
+Read `{spec_path}/03-tech-decisions.md`. This file was created and confirmed by the user during the Planning phase. Do not ask the user again — all technology decisions are already recorded there.
 
 Display a brief confirmation before proceeding:
 
 ```
-Technology stack loaded from tech-decisions.md:
+Technology stack loaded from 03-tech-decisions.md:
 - Backend:   {Language} / {Framework}
 - Database:  {Primary DB} with {ORM}
 - Caching:   {Service or "None"}
@@ -73,8 +73,8 @@ Technology stack loaded from tech-decisions.md:
 Proceeding with implementation...
 ```
 
-If `tech-decisions.md` is missing, stop immediately and tell the user:
-> "tech-decisions.md not found in {spec_path}. Please run the Planning Agent first before invoking the Development Agent."
+If `03-tech-decisions.md` is missing, stop immediately and tell the user:
+> "03-tech-decisions.md not found in {spec_path}. Please run the Planning Agent first before invoking the Development Agent."
 
 ## Step 2 — Project Structure
 
@@ -323,7 +323,7 @@ Ensure every endpoint has:
 
 ### api_usage.md
 
-Create `{spec_path}/api_usage.md` with one working `curl` example per endpoint defined in `04-api-contracts.md`. Use realistic but synthetic values — never real credentials or production data. Group examples by resource.
+Create `{spec_path}/api_usage.md` with one working `curl` example per endpoint defined in `05-api-contracts.md`. Use realistic but synthetic values — never real credentials or production data. Group examples by resource.
 
 Template:
 
@@ -370,7 +370,7 @@ Generate a curl for **every** endpoint. Add a brief expected response comment wh
 
 ## Step 8 — Write Implementation Notes
 
-Write `{spec_path}/05-implementation-notes.md`:
+Write `{spec_path}/06-implementation-notes.md`:
 
 ```markdown
 # Implementation Notes: {task_title}

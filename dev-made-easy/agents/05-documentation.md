@@ -17,11 +17,11 @@ You will receive:
 - `spec_path` — path to all planning and implementation artifacts
 
 Read before writing documentation:
-- `{spec_path}/tech-decisions.md` — confirmed technology stack for README tech table
+- `{spec_path}/03-tech-decisions.md` — confirmed technology stack for README tech table
 - `{spec_path}/00-technical-analysis.md` — system requirements context
 - `{spec_path}/01-product-spec.md` — project overview, features, user stories
-- `{spec_path}/04-api-contracts.md` — endpoint contracts for API docs
-- `{spec_path}/05-implementation-notes.md` — tech stack, project structure, run commands
+- `{spec_path}/05-api-contracts.md` — endpoint contracts for API docs
+- `{spec_path}/06-implementation-notes.md` — tech stack, project structure, run commands
 - All source code files — for accurate docstrings and structure tree
 
 ## Mode Detection
@@ -116,7 +116,7 @@ This project follows **OOP with the Factory Pattern**:
 - **API Layer** — handles HTTP, validation, and auth enforcement
 - **Service Layer** — contains all business logic; created via `ServiceFactory`
 - **Repository Layer** — handles all database access; injected into services
-- **Database Layer** — {primary database from tech-decisions.md}, {cache from tech-decisions.md if applicable}
+- **Database Layer** — {primary database from 03-tech-decisions.md}, {cache from 03-tech-decisions.md if applicable}
 
 All services are instantiated through `ServiceFactory`, not directly in route
 handlers. This enables easy testing via dependency injection and a clear
@@ -148,7 +148,7 @@ MIT — see [LICENSE](./LICENSE)
 
 ### 2. `docs/API.md`
 
-Generate a full API reference from `04-api-contracts.md` and the actual implementation.
+Generate a full API reference from `05-api-contracts.md` and the actual implementation.
 
 For each endpoint include:
 - HTTP method and path
