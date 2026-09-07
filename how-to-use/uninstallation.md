@@ -36,7 +36,7 @@ claude plugin uninstall dev-made-easy@agentic-development --scope local
 If you installed via `install.sh`:
 
 ```bash
-cd ~/.claude/skills/agentic-development/dev-made-easy
+cd ~/.claude/skills/agentic-development
 
 bash install.sh --uninstall --global         # remove from ~/.claude/agents/
 bash install.sh --uninstall --local          # remove from .claude/agents/ in current project

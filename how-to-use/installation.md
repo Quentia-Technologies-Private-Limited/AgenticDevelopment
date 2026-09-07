@@ -11,7 +11,7 @@ This plugin can be installed via the official Claude Code plugin system (recomme
 git clone https://github.com/Quentia-Technologies-Private-Limited/AgenticDevelopment.git ~/.claude/skills/agentic-development
 
 # 2. Register the marketplace (one-time setup)
-claude plugin marketplace add ~/.claude/skills/agentic-development/dev-made-easy --scope user
+claude plugin marketplace add ~/.claude/skills/agentic-development --scope user
 
 # 3. Install the plugin
 claude plugin install dev-made-easy@agentic-development --scope user
@@ -38,11 +38,11 @@ claude plugin list
 
 ```bash
 # Project scope (team shared)
-claude plugin marketplace add ~/.claude/skills/agentic-development/dev-made-easy --scope project
+claude plugin marketplace add ~/.claude/skills/agentic-development --scope project
 claude plugin install dev-made-easy@agentic-development --scope project
 
 # Local scope (personal, not committed)
-claude plugin marketplace add ~/.claude/skills/agentic-development/dev-made-easy --scope local
+claude plugin marketplace add ~/.claude/skills/agentic-development --scope local
 claude plugin install dev-made-easy@agentic-development --scope local
 ```
 
@@ -54,7 +54,7 @@ If you prefer not to use the plugin system, the included `install.sh` copies age
 
 ```bash
 git clone https://github.com/Quentia-Technologies-Private-Limited/AgenticDevelopment.git
-cd AgenticDevelopment/dev-made-easy
+cd AgenticDevelopment
 
 bash install.sh --global               # ~/.claude/agents/ — all projects
 bash install.sh --local                # .claude/agents/  — current project only
@@ -70,11 +70,10 @@ After a successful plugin install, agent files exist in three locations:
 
 | Location | Purpose |
 |----------|---------|
-| `~/.claude/skills/agentic-development/dev-made-easy/agents/` | Source clone (git-managed) |
+| `~/.claude/skills/agentic-development/agents/` | Source clone (git-managed) |
 | `~/.claude/plugins/cache/agentic-development/dev-made-easy/1.0.0/agents/` | Plugin cache (runtime copy) |
-| `~/.claude/skills/dev-made-easy/agents/` | Skills symlink (auto-created) |
 
-All three must stay in sync. See [updating.md](updating.md) for how to keep them aligned.
+Both must stay in sync. See [updating.md](updating.md) for how to keep them aligned.
 
 ---
 
@@ -92,5 +91,7 @@ claude plugin list
 Then invoke the orchestrator:
 
 ```
-@dev-made-easy:Development Orchestrator <your task description>
+/dev-made-easy:dev Build a weather app with location selection and 7-day forecast
 ```
+
+This slash command dispatches directly to the Development Orchestrator agent, bypassing any other skills that might intercept the request.

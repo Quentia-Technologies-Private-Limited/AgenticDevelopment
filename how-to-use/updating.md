@@ -11,7 +11,7 @@ When new agent versions are pushed to the repository, run these 4 steps to pick 
 cd ~/.claude/skills/agentic-development && git pull
 
 # 2. Force-sync agents into the plugin cache (auto-detects version directory)
-bash dev-made-easy/install.sh --update-cache
+bash install.sh --update-cache
 
 # 3. Also run the official update command (for metadata/manifest changes)
 claude plugin update dev-made-easy@agentic-development
@@ -49,6 +49,6 @@ The `--update-cache` flag already runs `diff` verification automatically. If all
 checkmark Verification passed — all agents match
 ```
 
-If any mismatch is reported, re-run step 2 (`bash dev-made-easy/install.sh --update-cache`).
+If any mismatch is reported, re-run step 2 (`bash install.sh --update-cache`).
 
 > You never need to uninstall/reinstall unless `marketplace.json` or `plugin.json` structure changes.

@@ -4,7 +4,7 @@ A multi-agent development pipeline for Claude Code. Supports two modes: **Greenf
 
 ## Architecture
 
-![Architecture Diagram](dev-made-easy/docs/architecture.svg)
+![Architecture Diagram](docs/architecture.svg)
 
 The Orchestrator asks you upfront: **new project** or **feature addition**?
 
@@ -33,10 +33,10 @@ In Claude Code, an **agent** is a `.md` file that defines an AI specialist — i
 A **plugin** in this context is a curated, distributable collection of related agents bundled together in a GitHub repository. There is no binary to compile, no package to publish to a registry, and no build step. The repository itself is the plugin.
 
 ```
-dev-made-easy/               ← this repo IS the plugin
+AgenticDevelopment/              ← this repo IS the plugin
 ├── .claude-plugin/
-│   ├── plugin.json          ← official Claude Code plugin manifest
-│   └── marketplace.json     ← marketplace manifest for plugin distribution
+│   ├── plugin.json              ← official Claude Code plugin manifest
+│   └── marketplace.json         ← marketplace manifest for plugin distribution
 ├── agents/
 │   ├── 00-orchestrator.md          ← smart router: asks new vs. existing, dispatches
 │   ├── 00a-orchestrator-greenfield.md  ← Greenfield pipeline (7 steps)
@@ -48,15 +48,18 @@ dev-made-easy/               ← this repo IS the plugin
 │   ├── 03-code-review.md
 │   ├── 04-testing.md
 │   └── 05-documentation.md
+├── commands/
+│   └── dev.md                    ← slash command: /dev-made-easy:dev
 ├── docs/
-│   ├── architecture.svg     ← pipeline architecture diagram
-│   ├── architecture.png     ← same diagram in PNG format
+│   ├── architecture.svg         ← pipeline architecture diagram
+│   ├── architecture.png         ← same diagram in PNG format
 │   └── AddUrOwnOrchestrator.md  ← guide to creating custom pipelines
 ├── how-to-use/
-│   ├── installation.md      ← install via plugin system or install.sh
-│   ├── updating.md          ← pull + cache sync + reload
-│   └── uninstallation.md    ← remove plugin and cleanup
-└── install.sh               ← manual fallback installer + cache sync
+│   ├── installation.md          ← install via plugin system or install.sh
+│   ├── updating.md              ← pull + cache sync + reload
+│   └── uninstallation.md        ← remove plugin and cleanup
+├── install.sh                   ← manual fallback installer + cache sync
+└── README.md
 ```
 
 ### How installation works
@@ -96,6 +99,7 @@ model: claude-opus-4-6      ← change this per-agent to suit cost/quality needs
 | `.claude-plugin/plugin.json` | Official Claude Code plugin manifest — name, version, description |
 | `.claude-plugin/marketplace.json` | Marketplace manifest — required for `claude plugin marketplace add` |
 | `agents/*.md` | The agents — edit these to customise behaviour |
+| `commands/*.md` | Slash commands — entry points that dispatch to orchestrator agents |
 | `install.sh` | Manual fallback installer (alternative to `claude plugin install`) |
 | `README.md` | Documentation for users of the plugin |
 
@@ -106,9 +110,9 @@ model: claude-opus-4-6      ← change this per-agent to suit cost/quality needs
 
 ## Getting Started
 
-- [Installation](dev-made-easy/how-to-use/installation.md)
-- [Updating](dev-made-easy/how-to-use/updating.md)
-- [Uninstallation](dev-made-easy/how-to-use/uninstallation.md)
+- [Installation](how-to-use/installation.md)
+- [Updating](how-to-use/updating.md)
+- [Uninstallation](how-to-use/uninstallation.md)
 
 ## Usage
 
@@ -127,12 +131,10 @@ claude
 
 ### Step 3 — Invoke the Orchestrator with your task description
 
-In the Claude Code session, use the plugin prefix and paste your task description in the same message:
+In the Claude Code session, use the slash command followed by your task description:
 
 ```
-@dev-made-easy:Development Orchestrator
-
-Build a backend API for a personal task management system. Users can register
+/dev-made-easy:dev Build a backend API for a personal task management system. Users can register
 and log in, then create and manage projects and tasks within those projects.
 
 Core Features:
@@ -144,7 +146,7 @@ Core Features:
 - Delete completed tasks in bulk per project
 ```
 
-> **Note:** The plugin prefix `dev-made-easy:` is required when agents are installed via the plugin system. Do not use `/agent "..."` or `@"..."` (with quotes around the full string) — both will fail.
+> **Note:** The `/dev-made-easy:dev` slash command dispatches directly to the Development Orchestrator agent, bypassing any other skills that might intercept the request. The `dev-made-easy:` prefix is the plugin name, and `dev` is the command.
 
 The orchestrator will first ask: **new project or feature addition?**
 
@@ -261,7 +263,7 @@ All agents use `claude-opus-4-6` by default. To switch models, edit the `model:`
 
 Want to add a pipeline for a different domain (Design, Data Engineering, DevOps, Mobile)?
 
-See **[Creating a Vertical](dev-made-easy/docs/AddUrOwnOrchestrator.md)** — a step-by-step guide with templates for creating your own orchestrator and subagents, registering with the router, and testing.
+See **[Creating a Vertical](docs/AddUrOwnOrchestrator.md)** — a step-by-step guide with templates for creating your own orchestrator and subagents, registering with the router, and testing.
 
 ### How to create or extend your own plugin
 
