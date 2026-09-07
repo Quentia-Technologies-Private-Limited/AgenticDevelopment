@@ -1,5 +1,22 @@
 {
   "name": "dev-made-easy",
   "description": "Multi-agent development pipeline — planning, coding, code review, testing, and documentation in one orchestrated workflow. Enforces OOP with Factory Pattern, Repository Pattern, and SOLID principles across all generated code.",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "author": {
+    "name": "Quentia Technologies"
+  },
+  "repository": "https://github.com/Quentia-Technologies-Private-Limited/AgenticDevelopment",
+  "license": "MIT",
+  "agents": [
+    "./agents/00-orchestrator.md",
+    "./agents/00a-orchestrator-greenfield.md",
+    "./agents/00b-orchestrator-feature.md",
+    "./agents/01-codebase-analysis.md",
+    "./agents/01a-planning-analysis.md",
+    "./agents/01b-planning-specs.md",
+    "./agents/02-development.md",
+    "./agents/03-code-review.md",
+    "./agents/04-testing.md",
+    "./agents/05-documentation.md"
+  ]
 }
