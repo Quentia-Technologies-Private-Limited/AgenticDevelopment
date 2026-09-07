@@ -287,6 +287,16 @@ Document every:
 
 ---
 
+## Self-Verification Gate (MANDATORY)
+
+Before returning to the Orchestrator, you MUST verify your own output:
+
+1. `{project_root}/README.md` — read the first 5 lines to confirm it exists and is not empty
+2. In Greenfield mode: `{project_root}/docs/API.md` and `{project_root}/CHANGELOG.md` — confirm both exist
+3. In Feature Addition mode: confirm README.md was updated (not just created fresh)
+
+If README.md is missing or empty, you have a bug. Fix it NOW before returning. Do NOT report completion without verification.
+
 ## Completion
 
 After writing all documentation, report back to the Orchestrator:
@@ -295,3 +305,4 @@ After writing all documentation, report back to the Orchestrator:
 2. Number of docstrings added across source files
 3. Confirmation that README.md, docs/API.md, and CHANGELOG.md are complete
 4. Any documentation gaps to address in a future iteration
+5. **Self-verification**: PASSED — all documentation files confirmed on disk

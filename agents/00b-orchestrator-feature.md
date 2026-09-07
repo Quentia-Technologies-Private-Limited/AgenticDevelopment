@@ -540,11 +540,15 @@ IMPORTANT: This is a Feature Addition. Do NOT overwrite existing documentation. 
 
 **GATE CHECK:** Verify `{project_root}/README.md` exists. If missing, mark Step 8 `[✗]` and ask: **"Step 8 completed but README.md was not updated. Retry or skip?"**
 
-Mark: Documentation → `[✓]`. Update `pipeline-state.json`: Step 8 → `"completed"`, top-level `status` → `"completed"`, set `completed_at`.
+Mark: Documentation → `[✓]`. Update `pipeline-state.json`: Step 8 → `"completed"`.
 
-## Post-Pipeline — Update Codebase Memory (automatic)
+**Do NOT set top-level status to `"completed"` yet. Do NOT show the final dashboard yet. You MUST run the Codebase Memory Update first.**
 
-After all 8 steps complete and before showing the final dashboard, launch the **dev-made-easy:Codebase Analysis Agent** in update mode to reflect what was just built. This is NOT a numbered pipeline step — it runs automatically.
+## MANDATORY Post-Pipeline — Update Codebase Memory
+
+**STOP. You are NOT done yet.** This step is MANDATORY. Do NOT skip it. Do NOT show the final dashboard without running this. Without it, the codebase memory becomes stale and the next Feature Addition pipeline will work with outdated context.
+
+Launch the **dev-made-easy:Codebase Analysis Agent** agent with this prompt:
 
 ```
 Update the codebase memory to reflect the newly added feature.
@@ -556,11 +560,19 @@ Both files are in {project_root}/docs/codebase/:
 - Read the existing docs/codebase/codebase-graph.json, scan the project for changes
   from this feature, and merge new/modified nodes and edges.
 - Update docs/codebase/00-codebase-analysis.md to include the new feature's components.
+
+You MUST update BOTH files:
+1. {project_root}/docs/codebase/00-codebase-analysis.md
+2. {project_root}/docs/codebase/codebase-graph.json
 ```
 
-This keeps the codebase memory current for the next Feature Addition pipeline.
+**GATE CHECK:** Verify `{project_root}/docs/codebase/00-codebase-analysis.md` AND `{project_root}/docs/codebase/codebase-graph.json` both exist and have been updated (check modification timestamps are recent). If either is missing, **retry the agent once**. If still missing after retry, ask the user.
+
+Only AFTER this gate check passes: set top-level `pipeline-state.json` status to `"completed"` and set `completed_at`.
 
 ## Pipeline Complete
+
+**You may ONLY show this dashboard after the Codebase Memory Update gate check passes.**
 
 ```
 ═══════════════════════════════════════════════════════
@@ -574,6 +586,7 @@ This keeps the codebase memory current for the next Feature Addition pipeline.
   [✓] 6. Code Review Agent        DONE
   [✓] 7. Testing Agent            DONE
   [✓] 8. Documentation Agent      DONE
+  [✓] Codebase Memory Update      DONE
 ═══════════════════════════════════════════════════════
   Artifacts: {spec_path}
   Issues: {total} ({mandatory} MANDATORY)

@@ -314,6 +314,15 @@ Do NOT recreate the entire graph — merge incrementally.
 
 ---
 
+## Self-Verification Gate (MANDATORY)
+
+Before returning to the Orchestrator, you MUST verify your own output. Check that BOTH files exist:
+
+1. `{project_root}/docs/codebase/00-codebase-analysis.md` — read the first 5 lines to confirm it is not empty
+2. `{project_root}/docs/codebase/codebase-graph.json` — read the first 5 lines to confirm it is valid JSON
+
+If either file is missing or empty, you have a bug. Fix it NOW before returning. Do NOT report completion without both files verified.
+
 ## Completion Report
 
 Report to the Orchestrator:
@@ -327,5 +336,6 @@ Report to the Orchestrator:
 7. **Architecture**: {key patterns found}
 8. **Graph stats**: {node count} nodes, {edge count} edges
 9. **Key observation**: {anything notable — monorepo, unconventional structure, missing tests, etc.}
+10. **Self-verification**: PASSED — both files confirmed on disk
 
 You create EXACTLY 2 files (scan mode) or update EXACTLY 2 files (update mode).

@@ -472,13 +472,15 @@ Read all spec files and source code. Produce:
 
 **GATE CHECK:** Verify `{project_root}/README.md` exists. If missing, mark Step 7 `[✗]` and ask: **"Step 7 completed but README.md was not created. Retry or skip?"**
 
-Mark: Documentation → `[✓]`. Update `pipeline-state.json`: Step 7 → `"completed"`, top-level `status` → `"completed"`, set `completed_at`.
+Mark: Documentation → `[✓]`. Update `pipeline-state.json`: Step 7 → `"completed"`.
+
+**Do NOT set top-level status to `"completed"` yet. Do NOT show the final dashboard yet. You MUST run the Codebase Snapshot first.**
 
 ## MANDATORY Post-Pipeline — Codebase Snapshot
 
-**You MUST run this step after Step 7 completes and BEFORE showing the final dashboard.** This is not optional. Without it, future Feature Addition pipelines cannot work.
+**STOP. You are NOT done yet.** This step is MANDATORY. Do NOT skip it. Do NOT show the final dashboard without running this. Without it, future Feature Addition pipelines cannot work because they depend on `docs/codebase/00-codebase-analysis.md` existing.
 
-Launch the **dev-made-easy:Codebase Analysis Agent** agent to create the initial codebase memory. Use the `{project_root}` received in your Inputs.
+Launch the **dev-made-easy:Codebase Analysis Agent** agent with this prompt:
 
 ```
 Scan the newly built project and create the codebase memory.
@@ -498,11 +500,13 @@ This is a Greenfield project that was just built. Scan all source code, models,
 routes, tests, and configuration to produce a complete snapshot.
 ```
 
-This snapshot enables future Feature Addition pipelines to start with full codebase context instead of scanning from cold.
+**GATE CHECK:** Verify `{project_root}/docs/codebase/00-codebase-analysis.md` AND `{project_root}/docs/codebase/codebase-graph.json` both exist. If either is missing, **retry the agent once**. If still missing after retry, ask the user.
+
+Only AFTER this gate check passes: set top-level `pipeline-state.json` status to `"completed"` and set `completed_at`.
 
 ## Pipeline Complete
 
-**BEFORE showing this dashboard**, verify that `{project_root}/docs/codebase/00-codebase-analysis.md` exists. If it does NOT exist, you skipped the Codebase Snapshot step — go back and run it NOW.
+**You may ONLY show this dashboard after the Codebase Snapshot gate check passes.**
 
 ```
 ═══════════════════════════════════════════════════════

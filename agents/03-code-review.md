@@ -183,6 +183,14 @@ Write `{spec_path}/07-review-report.md`:
 {1-2 sentence rationale. If revising, list the top 3 items to address first.}
 ```
 
+## Self-Verification Gate (MANDATORY)
+
+Before returning to the Orchestrator, you MUST verify your own output:
+
+1. `{spec_path}/07-review-report.md` — read the first 5 lines to confirm it is not empty and contains the review header
+
+If the file is missing or empty, you have a bug. Fix it NOW before returning. Do NOT report completion without verification.
+
 ## Completion
 
 After writing the review report, report back to the Orchestrator:
@@ -191,3 +199,4 @@ After writing the review report, report back to the Orchestrator:
 2. Finding counts by severity
 3. Brief list of any CRITICAL or HIGH findings
 4. Confirmation that `{spec_path}/07-review-report.md` was written
+5. **Self-verification**: PASSED — `07-review-report.md` confirmed on disk

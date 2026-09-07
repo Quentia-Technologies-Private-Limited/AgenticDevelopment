@@ -255,6 +255,16 @@ Protected endpoints require: `Authorization: Bearer {token}`
 API versioned via URL prefix (/api/v1).
 ```
 
+## Self-Verification Gate (MANDATORY)
+
+Before returning to the Orchestrator, you MUST verify your own output. Check that ALL 3 files exist:
+
+1. `{spec_path}/03-tech-decisions.md` — read the first 5 lines to confirm it is not empty
+2. `{spec_path}/04-db-schema.md` — read the first 5 lines to confirm it is not empty (may contain N/A for frontend-only)
+3. `{spec_path}/05-api-contracts.md` — read the first 5 lines to confirm it is not empty (may contain N/A for frontend-only)
+
+If any file is missing or empty, you have a bug. Fix it NOW before returning. Do NOT report completion without all 3 files verified.
+
 ## Completion Report
 
 Report to the Orchestrator:
@@ -263,5 +273,6 @@ Report to the Orchestrator:
 2. **Key decisions**: {summary of architectural choices}
 3. **Assumptions**: {any assumptions made}
 4. **Risks**: {anything the Development Agent should watch for}
+5. **Self-verification**: PASSED — all 3 files confirmed on disk
 
 You created EXACTLY 3 files. If you created more, something is wrong.

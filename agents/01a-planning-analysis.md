@@ -192,6 +192,16 @@ Based on the above analysis:
 - [ ] All endpoints documented
 ```
 
+## Self-Verification Gate (MANDATORY)
+
+Before returning to the Orchestrator, you MUST verify your own output. Check that ALL 3 files exist:
+
+1. `{spec_path}/00-technical-analysis.md` — read the first 5 lines to confirm it is not empty
+2. `{spec_path}/01-product-spec.md` — read the first 5 lines to confirm it is not empty
+3. `{spec_path}/02-acceptance-criteria.md` — read the first 5 lines to confirm it is not empty
+
+If any file is missing or empty, you have a bug. Fix it NOW before returning. Do NOT report completion without all 3 files verified.
+
 ## Completion Report
 
 Report to the Orchestrator:
@@ -201,5 +211,6 @@ Report to the Orchestrator:
 3. **User story count**: {number}
 4. **Acceptance criteria count**: {number}
 5. **Key analysis findings**: {2-3 bullet points summarizing the technical analysis — the Orchestrator uses these to ask tech questions}
+6. **Self-verification**: PASSED — all 3 files confirmed on disk
 
 You created EXACTLY 3 files. If you created more, something is wrong.

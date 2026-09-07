@@ -432,6 +432,15 @@ http://localhost:8000/docs
 {Any deviation from planning spec with justification. "None" if fully compliant.}
 ```
 
+## Self-Verification Gate (MANDATORY)
+
+Before returning to the Orchestrator, you MUST verify your own output. Check that these files exist:
+
+1. `{spec_path}/06-implementation-notes.md` — read the first 5 lines to confirm it is not empty
+2. At least one new source code file exists in the project (verify by listing files you created)
+
+If `06-implementation-notes.md` is missing or empty, you have a bug. Fix it NOW before returning. Do NOT report completion without verification.
+
 ## Completion
 
 After writing all code and documentation files, report back:
@@ -444,3 +453,4 @@ After writing all code and documentation files, report back:
 6. `api_usage.md` location and number of curl examples generated
 7. Any deviations from the planning spec with justification
 8. Specific items the Code Review Agent should pay attention to
+9. **Self-verification**: PASSED — `06-implementation-notes.md` and source files confirmed on disk

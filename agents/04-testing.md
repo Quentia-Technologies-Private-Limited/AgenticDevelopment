@@ -202,3 +202,12 @@ After all testing, report back to the Orchestrator:
 
 ### Issues directory: {spec_path}/issues/
 ```
+
+## Self-Verification Gate (MANDATORY)
+
+Before returning to the Orchestrator, you MUST verify your own output:
+
+1. `{spec_path}/issues/` directory exists
+2. At least one file exists inside it — either `issue-001.md` (if bugs found) or `no-issues-found.md` (if all passed)
+
+If the issues directory is missing, you have a bug. Create it NOW before returning. Do NOT report completion without verification.
