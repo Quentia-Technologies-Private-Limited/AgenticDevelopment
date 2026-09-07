@@ -144,6 +144,33 @@ Create the `{spec_path}/issues/` directory if it does not exist.
 | **MEDIUM** | Composite score >= 10, not already HIGH or MANDATORY |
 | **LOW** | Composite score < 10 |
 
+## No Issues Found
+
+If all tests pass and no defects are found, you MUST still create the issues directory with a summary file:
+
+`{spec_path}/issues/no-issues-found.md`
+
+```markdown
+# No Issues Found
+
+**Date**: {YYYY-MM-DD}
+**Tester**: Testing Agent (claude-opus-4-6)
+
+## Summary
+
+All acceptance criteria passed. No defects, failures, or deviations were found during testing.
+
+### Tests Executed
+- Unit tests: {count} passed
+- Integration tests: {count} passed
+- Acceptance criteria tests: {count}/{count} passed
+
+### Notes
+{Any observations worth noting — e.g., "Edge case X was tested but behaved correctly."}
+```
+
+This ensures the `{spec_path}/issues/` directory always exists after testing, making it clear that testing ran and found nothing, rather than testing being skipped.
+
 ## Completion Report
 
 After all testing, report back to the Orchestrator:

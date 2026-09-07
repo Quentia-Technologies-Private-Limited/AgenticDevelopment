@@ -416,7 +416,15 @@ Read all spec files and source code, then produce {spec_path}/07-review-report.m
 with findings categorised by severity (CRITICAL, HIGH, MEDIUM, LOW).
 ```
 
-**GATE CHECK:** Verify `{spec_path}/07-review-report.md` exists. If missing, mark Step 5 `[✗]` and ask: **"Step 5 completed but 07-review-report.md was not created. Retry or skip?"**
+**GATE CHECK:** Verify `{spec_path}/07-review-report.md` exists. This file is MANDATORY — the Code Review Agent is instructed to always write it. If missing, do NOT mark the step complete. Instead mark Step 5 `[✗]` and **retry the agent once** with this prompt:
+
+```
+You did not write {spec_path}/07-review-report.md. This file is mandatory.
+Re-read all spec files and source code in the project, then write the review report now.
+spec_path: {spec_path}
+```
+
+If it fails a second time, ask: **"Step 5 completed but 07-review-report.md was not created after retry. Skip or abort?"**
 
 Mark: Code Review → `[✓]`. Update `pipeline-state.json`: Step 5 → `"completed"`.
 
@@ -438,9 +446,11 @@ Run unit tests, integration tests, and acceptance criteria tests.
 Log each defect as {spec_path}/issues/issue-{NNN}.md with triage scores.
 ```
 
+**GATE CHECK:** Verify `{spec_path}/issues/` directory exists. If no bugs were found, the Testing Agent should have created `{spec_path}/issues/no-issues-found.md`. If the directory does not exist at all, note it as a warning but do not block the pipeline.
+
 Mark: Testing → `[✓]`. Update `pipeline-state.json`: Step 6 → `"completed"`.
 
-Show: `Issues: {count} (MANDATORY: {n}, HIGH: {n}, MEDIUM: {n}, LOW: {n})`
+Show: `Issues: {count} (MANDATORY: {n}, HIGH: {n}, MEDIUM: {n}, LOW: {n})` — if no issues, show `Issues: 0 (all acceptance criteria passed)`
 
 ## Step 7 — Documentation Agent (auto-chain)
 

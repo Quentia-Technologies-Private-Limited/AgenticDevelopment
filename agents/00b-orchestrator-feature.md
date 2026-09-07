@@ -387,8 +387,8 @@ Technology stack (existing + new):
 
 Read the codebase profile and Phase 1 files in {spec_path} for context, then write these 3 files:
 1. 03-tech-decisions.md — record the full technology stack (existing + new), marking what is new
-2. 04-db-schema.md — describe ONLY new tables and migration changes (ALTER TABLE, new indexes, new columns). Reference existing tables by name but do not redefine them.
-3. 05-api-contracts.md — describe ONLY new or modified endpoints. Reference existing endpoints by name but do not redefine them.
+2. 04-db-schema.md — if the feature requires database changes, describe ONLY new tables and migration changes (ALTER TABLE, new indexes, new columns). Reference existing tables by name but do not redefine them. If the feature needs NO database changes, write the file with "Status: Not Applicable" and a one-sentence reason.
+3. 05-api-contracts.md — if the feature adds or modifies API endpoints, describe ONLY new or modified endpoints. Reference existing endpoints by name but do not redefine them. If the feature needs NO new API endpoints, write the file with "Status: Not Applicable" and a one-sentence reason.
 ```
 
 **GATE CHECK:** Verify all 3 files exist: `{spec_path}/03-tech-decisions.md`, `{spec_path}/04-db-schema.md`, `{spec_path}/05-api-contracts.md`. If any is missing, mark Step 4 `[✗]` and ask: **"Step 4 completed but {missing_file} was not created. Retry or skip?"**
@@ -478,7 +478,15 @@ IMPORTANT: This is a Feature Addition. In addition to standard review checks, al
 - New endpoints follow the existing API conventions
 ```
 
-**GATE CHECK:** Verify `{spec_path}/07-review-report.md` exists. If missing, mark Step 6 `[✗]` and ask: **"Step 6 completed but 07-review-report.md was not created. Retry or skip?"**
+**GATE CHECK:** Verify `{spec_path}/07-review-report.md` exists. This file is MANDATORY — the Code Review Agent is instructed to always write it. If missing, do NOT mark the step complete. Instead mark Step 6 `[✗]` and **retry the agent once** with this prompt:
+
+```
+You did not write {spec_path}/07-review-report.md. This file is mandatory.
+Re-read all spec files and source code in the project, then write the review report now.
+spec_path: {spec_path}
+```
+
+If it fails a second time, ask: **"Step 6 completed but 07-review-report.md was not created after retry. Skip or abort?"**
 
 Mark: Code Review → `[✓]`. Update `pipeline-state.json`: Step 6 → `"completed"`.
 
@@ -506,9 +514,11 @@ Read 02-acceptance-criteria.md, 05-api-contracts.md, 07-review-report.md, and al
 Log each defect as {spec_path}/issues/issue-{NNN}.md with triage scores.
 ```
 
+**GATE CHECK:** Verify `{spec_path}/issues/` directory exists. If no bugs were found, the Testing Agent should have created `{spec_path}/issues/no-issues-found.md`. If the directory does not exist at all, note it as a warning but do not block the pipeline.
+
 Mark: Testing → `[✓]`. Update `pipeline-state.json`: Step 7 → `"completed"`.
 
-Show: `Issues: {count} (MANDATORY: {n}, HIGH: {n}, MEDIUM: {n}, LOW: {n})`
+Show: `Issues: {count} (MANDATORY: {n}, HIGH: {n}, MEDIUM: {n}, LOW: {n})` — if no issues, show `Issues: 0 (all acceptance criteria passed)`
 
 ## Step 8 — Documentation Agent (auto-chain)
 

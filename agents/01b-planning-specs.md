@@ -90,7 +90,36 @@ Record the confirmed technology choices:
 - Docker: {Yes/No}
 ```
 
+## Frontend-Only Detection
+
+After writing `03-tech-decisions.md`, check if the project has NO backend and NO database (e.g., Backend = "None" and Database = "None"). If so, the project is **frontend-only**.
+
+For frontend-only projects:
+- `04-db-schema.md` — write the N/A placeholder (see Step 2 below)
+- `05-api-contracts.md` — write the N/A placeholder (see Step 3 below)
+- Then skip to the Completion Report
+
 ## Step 2 — Write `{spec_path}/04-db-schema.md`
+
+### If frontend-only (no database):
+
+```markdown
+# Database Schema: {task_title}
+
+## Status: Not Applicable
+
+This is a frontend-only application with no server-side database.
+
+**Reason**: {1 sentence explaining why — e.g., "Client-side app using external API with localStorage for preferences."}
+
+**Local Storage Schema** (if applicable):
+
+| Key | Value Type | Purpose |
+|-----|-----------|---------|
+| {key} | {type} | {what it stores} |
+```
+
+### If backend project (has database):
 
 Use the confirmed database from tech-decisions for all types and syntax.
 
@@ -132,6 +161,26 @@ CREATE UNIQUE INDEX uq_{table}_{column} ON {table}({column});
 ```
 
 ## Step 3 — Write `{spec_path}/05-api-contracts.md`
+
+### If frontend-only (no custom backend API):
+
+```markdown
+# API Contracts: {task_title}
+
+## Status: Not Applicable
+
+This is a frontend-only application with no custom backend API.
+
+**Reason**: {1 sentence — e.g., "App consumes Open-Meteo public API directly from the browser."}
+
+**External APIs Used**:
+
+| API | Base URL | Auth Required | Purpose |
+|-----|----------|---------------|---------|
+| {name} | {url} | {Yes/No} | {what it provides} |
+```
+
+### If backend project (has custom API):
 
 Use the confirmed API style and auth method from tech-decisions.
 

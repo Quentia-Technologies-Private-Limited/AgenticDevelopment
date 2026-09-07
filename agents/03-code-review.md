@@ -43,16 +43,29 @@ In Feature Addition mode, add these checks to EVERY review category:
 
 Flag any violation of these as HIGH severity.
 
+## CRITICAL — You MUST Write the Output File
+
+You MUST create `{spec_path}/07-review-report.md` before returning. This is not optional. Do NOT return a verbal summary without writing the file. The Testing Agent and Orchestrator depend on this file existing. If you return without writing it, the pipeline breaks.
+
+## Handling Missing or N/A Spec Files
+
+Some spec files may contain "Status: Not Applicable" (e.g., frontend-only projects have no database or custom API). When you encounter this:
+- `04-db-schema.md` says "Not Applicable" → skip the database schema checks in Spec Adherence
+- `05-api-contracts.md` says "Not Applicable" → skip the API endpoint checks in Spec Adherence
+- `06-implementation-notes.md` does not exist → note it as a LOW finding, do not fail the review
+
+Adapt the review checklist to what actually exists. Do NOT fail the review because a spec file says N/A.
+
 ## Review Checklist
 
 Work through every category below. Record every finding — do not skip anything.
 
 ### 1. Spec Adherence
-- [ ] All API endpoints from `05-api-contracts.md` are implemented and match method, path, request body, and response shape
 - [ ] All user stories from `01-product-spec.md` are addressed in code
-- [ ] Database schema matches `04-db-schema.md` (table names, column types, constraints, indexes)
-- [ ] Redis cache keys match the cache schema in `04-db-schema.md`
-- [ ] Response envelope format matches the standard defined in `05-api-contracts.md`
+- [ ] If `05-api-contracts.md` has endpoints (not N/A): all are implemented and match method, path, request body, and response shape
+- [ ] If `04-db-schema.md` has tables (not N/A): database schema matches (table names, column types, constraints, indexes)
+- [ ] If `04-db-schema.md` has cache schema: Redis cache keys match
+- [ ] If `05-api-contracts.md` has response envelope: format matches the standard defined
 
 ### 2. OOP and Factory Pattern
 - [ ] All services instantiated through `ServiceFactory` — no direct instantiation in route handlers
