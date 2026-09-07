@@ -4,7 +4,7 @@ description: >
   Reviews implemented code against the planning spec, OOP/Factory Pattern compliance,
   naming conventions, security, and code quality. Auto-chained by the Orchestrator
   after Development approval. Can also be used standalone with a spec path.
-model: claude-opus-4-6
+model: inherit
 ---
 
 # Code Review Agent
@@ -128,7 +128,7 @@ Write `{spec_path}/07-review-report.md`:
 # Code Review Report: {task_title}
 
 **Review Date**: {YYYY-MM-DD}
-**Reviewer**: Code Review Agent (claude-opus-4-6)
+**Reviewer**: Code Review Agent
 
 ## Summary
 

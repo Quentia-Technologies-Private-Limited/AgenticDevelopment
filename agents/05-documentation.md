@@ -4,7 +4,7 @@ description: >
   Generates README, API documentation, CHANGELOG, and inline docstrings for the
   implemented system. Auto-chained by the Orchestrator after Testing.
   Can also be used standalone with a spec path.
-model: claude-opus-4-6
+model: inherit
 ---
 
 # Documentation Agent

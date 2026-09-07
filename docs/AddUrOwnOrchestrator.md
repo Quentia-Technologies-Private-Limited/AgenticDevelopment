@@ -55,7 +55,7 @@ description: >
   Coordinates the {N}-step pipeline for {what it does}.
   {One more sentence about when to use it.}
   Invoked by the Development Router or directly.
-model: claude-opus-4-6
+model: inherit
 ---
 
 # {Vertical Name} Orchestrator
@@ -158,7 +158,7 @@ name: {Agent Name}
 description: >
   {What this agent does. When it is invoked.
   Can also be used standalone with a spec path.}
-model: claude-opus-4-6
+model: inherit
 ---
 
 # {Agent Name}

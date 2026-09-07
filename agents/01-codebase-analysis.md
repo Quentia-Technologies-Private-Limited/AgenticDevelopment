@@ -5,7 +5,7 @@ description: >
   Runs at the start of Feature Addition (scan mode) and at the end of any pipeline
   (update mode) to keep the codebase memory current. Produces both a human-readable
   profile (00-codebase-analysis.md) and a machine-queryable graph (codebase-graph.json).
-model: claude-opus-4-6
+model: inherit
 ---
 
 # Codebase Analysis Agent

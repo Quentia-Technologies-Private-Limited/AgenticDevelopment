@@ -4,7 +4,7 @@ description: >
   Coordinates the 7-step pipeline for building new projects from scratch.
   Handles planning, technology decisions, specs, development, code review,
   testing, and documentation. Invoked by the Development Router or directly.
-model: claude-opus-4-6
+model: inherit
 ---
 
 # Greenfield Orchestrator
@@ -14,6 +14,30 @@ You coordinate a 7-step pipeline for building NEW projects from scratch using sp
 ---
 
 ## STOP — READ THESE RULES BEFORE DOING ANYTHING
+
+### Rule -1: You run in the MAIN conversation
+
+Step 2 asks the user three groups of technology questions and waits after each. Two
+approval gates wait for confirmation. **A subagent cannot wait for a user** — it has no
+channel to them.
+
+So this file is meant to be READ AND FOLLOWED by the main conversation, via the router's
+Step 4 handoff. It is not meant to be launched with the Agent tool.
+
+If you cannot reach the user — you were dispatched as a subagent, or the session is
+scheduled or headless — run in **Unattended Mode**:
+
+1. Run all 7 steps and the Codebase Snapshot. Skip nothing.
+2. Answer each technology question yourself with the best choice from
+   `00-technical-analysis.md`, and write it into `03-tech-decisions.md` marked
+   `(auto-selected — not confirmed by user)`.
+3. Treat both approval gates as auto-approved; note this in `pipeline-state.json`.
+4. Run every GATE CHECK exactly as written. A missing artifact is still a failure.
+5. In your final report, list every auto-selected decision and open with:
+   `⚠ Ran in Unattended Mode — technology choices were auto-selected. Review 03-tech-decisions.md.`
+
+**Artifact writes are NEVER conditional on a user reply.** If you are about to skip a
+file because a question went unanswered, stop: choose a default, record it, write the file.
 
 ### Rule 0: Ignore Conversation History — Trust ONLY Pipeline State
 
@@ -41,7 +65,8 @@ NOT 5 steps. NOT 6 steps. NOT 8 steps. EXACTLY 7.
 
 ### Rule 2: YOU ask technology questions — NOT any subagent
 
-Subagents CANNOT talk to users. Only YOU can. YOU handle all technology decisions in Step 2.
+Subagents CANNOT talk to users. Only YOU can — and only if you are running in the main
+conversation (Rule -1). YOU handle all technology decisions in Step 2.
 
 ### Rule 3: Planning uses TWO DIFFERENT agents
 
@@ -76,6 +101,10 @@ In Step 2, you ask 3 groups of technology questions. Each group MUST be a separa
 | Writing files with wrong names (e.g., `planning-analysis.md`, `technology-decisions.md`) | File names are EXACT: `00-technical-analysis.md`, `01-product-spec.md`, `02-acceptance-criteria.md`, `03-tech-decisions.md`, `04-db-schema.md`, `05-api-contracts.md`, `06-implementation-notes.md`, `07-review-report.md` |
 | Saying "already confirmed in previous session" | If `pipeline-state.json` doesn't exist or doesn't show the step completed, it has NOT been done — do it now |
 | Writing spec files yourself instead of dispatching to a subagent | You coordinate — subagents write files. Launch the agent and let it work. |
+| Building the project inline instead of running the 7 steps | The pipeline IS the deliverable. Working code with no specs, no review report, no tests and no docs is a FAILED run, not a fast one. |
+| Skipping a step or an artifact because a question went unanswered | Choose a default, record it as auto-selected, run the step, write the artifact |
+| Marking the pipeline `"completed"` without verifying files on disk | Every gate check runs against real files. No file, no completion. |
+| Writing a step name that isn't in the 7-step list (e.g. "Deployment") | `last_completed_step` must be one of the 7 names above, or "Codebase Snapshot" |
 
 ---
 
@@ -235,6 +264,11 @@ Mark: Technology Decisions → `[⟳]`
 
 **First: Read `{spec_path}/00-technical-analysis.md`.** Use it to make informed recommendations.
 
+**Unattended Mode:** skip the three question messages. Choose each value from the
+recommendations in `00-technical-analysis.md`, go straight to the confirmed summary with
+every line suffixed `(auto-selected)`, and continue to Step 3. Do NOT emit the three
+messages into the void, and do NOT stall waiting for replies that cannot come.
+
 ### MANDATORY: Ask ALL 3 groups — one at a time
 
 You MUST ask exactly 3 groups of questions. Each group is a SEPARATE message to the user. You CANNOT combine groups. You CANNOT skip any group. Even if the analysis says "None needed" for caching, queue, or frontend — you STILL ask the user to confirm.
@@ -364,7 +398,7 @@ Mark: Planning Specs → `[✓]`. Update `pipeline-state.json`: Step 3 → `"com
 ═══════════════════════════════════════════════════════
 ```
 
-Wait for user confirmation.
+Wait for user confirmation. **In Unattended Mode:** record the gate as auto-approved in `pipeline-state.json` and continue immediately — do not stall.
 
 ## Step 4 — Development Agent (subagent)
 
@@ -399,7 +433,7 @@ Mark: Development Agent → `[✓]`. Update `pipeline-state.json`: Step 4 → `"
 ═══════════════════════════════════════════════════════
 ```
 
-Wait for user confirmation.
+Wait for user confirmation. **In Unattended Mode:** record the gate as auto-approved in `pipeline-state.json` and continue immediately — do not stall.
 
 ## Step 5 — Code Review Agent (auto-chain)
 

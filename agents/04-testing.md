@@ -5,7 +5,7 @@ description: >
   Logs each issue individually with triage scores across Impact, Feasibility,
   Customer Experience, and Revenue Impact. Auto-chained by the Orchestrator
   after Code Review. Can also be used standalone with a spec path.
-model: claude-opus-4-6
+model: inherit
 ---
 
 # Testing Agent
@@ -154,7 +154,7 @@ If all tests pass and no defects are found, you MUST still create the issues dir
 # No Issues Found
 
 **Date**: {YYYY-MM-DD}
-**Tester**: Testing Agent (claude-opus-4-6)
+**Tester**: Testing Agent
 
 ## Summary
 

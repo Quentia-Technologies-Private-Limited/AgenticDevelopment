@@ -13,7 +13,7 @@ The Orchestrator asks you upfront: **new project** or **feature addition**?
 
 | Agent | Role | Output |
 |-------|------|--------|
-| Development Orchestrator | Router: determines new vs. existing project, dispatches to correct pipeline | — |
+| Development Orchestrator | Router: determines new vs. existing project, hands off to the correct pipeline (runs in the main conversation) | — |
 | Greenfield Orchestrator | Coordinates 7-step pipeline for new projects, asks tech questions | Status dashboard |
 | Feature Addition Orchestrator | Coordinates 8-step pipeline for existing projects, does tech gap analysis | Status dashboard |
 | Codebase Analysis Agent | Scans existing project: tech stack, patterns, schema, API, tests. Outputs to `docs/codebase/` | `00-codebase-analysis.md` + `codebase-graph.json` |
@@ -23,6 +23,57 @@ The Orchestrator asks you upfront: **new project** or **feature addition**?
 | Code Review Agent | Reviews against spec, security, quality, and codebase consistency | `07-review-report.md` |
 | Testing Agent | Tests against acceptance criteria, triages issues | `issues/issue-NNN.md` per bug |
 | Documentation Agent | README, API docs, CHANGELOG, docstrings (updates existing docs in Feature Addition) | Project documentation |
+
+## Execution model — read this before changing `/dev`
+
+**The orchestrators run in the main conversation. Only the specialists are dispatched as subagents.**
+
+```
+main conversation
+  ├─ /dev  →  reads 00-orchestrator.md, BECOMES the router
+  │            └─ reads 00a/00b, BECOMES the pipeline orchestrator
+  │                 ├─ Agent → Planning Analysis Agent
+  │                 ├─ Agent → Planning Specs Agent
+  │                 ├─ Agent → Development Agent
+  │                 ├─ Agent → Code Review Agent
+  │                 ├─ Agent → Testing Agent
+  │                 ├─ Agent → Documentation Agent
+  │                 └─ Agent → Codebase Analysis Agent
+```
+
+One level of dispatch. No orchestrators inside agents.
+
+### Why
+
+The orchestrators are interactive. They ask which mode to run, they ask three groups of
+technology questions and wait after each, and they hold two approval gates. **A subagent
+has no channel to the user** — it cannot send a message and wait for a reply; it runs to
+completion and returns one string.
+
+If the orchestrator is dispatched with the Agent tool, every gate becomes unsatisfiable
+and each step from Step 2 onward is blocked on answers that can never arrive. The only
+path that terminates is to abandon the pipeline, improvise the build inline, and report
+success. The result is a silent failure: working code, no specs, no review report, no
+tests, no docs, and a `pipeline-index.json` entry claiming the pipeline completed.
+
+If you edit `commands/dev.md`, do not turn the handoff back into an `Agent` call.
+
+### Unattended mode
+
+When the pipeline genuinely cannot reach a user — a scheduled run, a headless session, or
+an orchestrator that was dispatched as a subagent anyway — it does **not** skip steps.
+It picks a sensible default for each question, writes it into the spec artifact marked
+`(auto-selected — not confirmed by user)`, auto-approves the gates, and still runs every
+gate check against real files on disk. Artifact writes are never conditional on a reply.
+The final report lists every auto-selected decision.
+
+### project_root
+
+`project_root` is resolved from an explicit path first, and only falls back to the cwd if
+the cwd actually looks like a project (source files, a manifest, or `.git`). A bare home
+directory is never accepted. In hosted environments the cwd is an ephemeral sandbox, and
+building there scatters artifacts across the sandbox root and loses them when the session
+ends.
 
 ## How the Plugin Works
 
@@ -83,7 +134,7 @@ name: Agent Name            ← how you invoke it: /agent "Agent Name"
 description: >              ← shown when browsing agents; helps Claude Code
   What it does.               suggest the right agent automatically
   Can be used standalone.
-model: claude-opus-4-6      ← change this per-agent to suit cost/quality needs
+model: inherit            ← inherits the session model; or set sonnet/opus/haiku per agent
 ---
 
 # Agent Name
@@ -242,7 +293,7 @@ Issues scoring (Impact >= 4 AND CX >= 4) or (Revenue >= 4) are marked **MANDATOR
 
 ## Models
 
-All agents use `claude-opus-4-6` by default. To switch models, edit the `model:` field at the top of any agent file in `agents/`.
+All agents use `model: inherit`, so they run on whatever model the session is using. To pin one, set `model:` to `sonnet`, `opus`, `haiku`, or a full model ID at the top of that agent file in `agents/`. Avoid hardcoding a version-specific ID — if it stops resolving, the setting is silently ignored.
 
 ## Agent Files
 
@@ -277,7 +328,7 @@ Want to fork this or build your own? Here is how:
    ---
    name: My Custom Agent
    description: What this agent does and when Claude Code should suggest it.
-   model: claude-opus-4-6
+   model: inherit
    ---
 
    # My Custom Agent

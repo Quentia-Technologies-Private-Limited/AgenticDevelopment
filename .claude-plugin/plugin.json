@@ -1,7 +1,7 @@
 {
   "name": "dev-made-easy",
-  "version": "1.0.0",
-  "description": "Multi-agent development pipeline — planning, coding, code review, testing, and documentation in one orchestrated workflow. Enforces OOP with Factory Pattern, Repository Pattern, and SOLID principles across all generated code.",
+  "version": "1.1.0",
+  "description": "Multi-agent development pipeline — planning, coding, code review, testing, and documentation in one orchestrated workflow. The orchestrator runs in the main conversation so its interactive gates work; specialists are dispatched one level deep. Enforces OOP with Factory Pattern, Repository Pattern, and SOLID principles across all generated code.",
   "author": {
     "name": "Quentia Technologies"
   },
@@ -30,5 +30,7 @@
     "./agents/04-testing.md",
     "./agents/05-documentation.md"
   ],
-  "commands": ["./commands/"]
+  "commands": [
+    "./commands/"
+  ]
 }

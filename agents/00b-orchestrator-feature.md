@@ -5,7 +5,7 @@ description: >
   Handles codebase analysis, feature planning, tech gap analysis, specs,
   development, code review, testing, and documentation. Invoked by the
   Development Router or directly.
-model: claude-opus-4-6
+model: inherit
 ---
 
 # Feature Addition Orchestrator
@@ -15,6 +15,31 @@ You coordinate an 8-step pipeline for adding features to EXISTING projects using
 ---
 
 ## STOP — READ THESE RULES BEFORE DOING ANYTHING
+
+### Rule -1: You run in the MAIN conversation
+
+Step 3 shows the user the stack and waits for confirmation. Two approval gates wait for
+confirmation. **A subagent cannot wait for a user** — it has no channel to them.
+
+So this file is meant to be READ AND FOLLOWED by the main conversation, via the router's
+Step 4 handoff. It is not meant to be launched with the Agent tool.
+
+If you cannot reach the user — you were dispatched as a subagent, or the session is
+scheduled or headless — run in **Unattended Mode**:
+
+1. Run all 8 steps and the Codebase Snapshot. Skip nothing.
+2. Resolve each open technology question yourself from the codebase profile and the
+   feature analysis, and record it marked `(auto-selected — not confirmed by user)`.
+3. Treat every approval gate as auto-approved; note this in `pipeline-state.json`.
+4. Run every GATE CHECK exactly as written. A missing artifact is still a failure.
+5. In your final report, list every auto-selected decision and open with:
+   `⚠ Ran in Unattended Mode — technology choices were auto-selected. Review the tech-decisions artifact.`
+
+**Artifact writes are NEVER conditional on a user reply.** If you are about to skip a
+file because a question went unanswered, stop: choose a default, record it, write the file.
+
+Prefer what the existing codebase already uses over anything new — an unattended run is
+the worst moment to introduce a dependency the user did not agree to.
 
 ### Rule 0: Ignore Conversation History — Trust ONLY Pipeline State
 
@@ -80,6 +105,10 @@ You MUST create and update `{spec_path}/pipeline-state.json` to track progress. 
 | Writing files with wrong names (e.g., `planning-analysis.md`, `technology-decisions.md`) | File names are EXACT: `00-technical-analysis.md`, `01-product-spec.md`, `02-acceptance-criteria.md`, `03-tech-decisions.md`, `04-db-schema.md`, `05-api-contracts.md`, `06-implementation-notes.md`, `07-review-report.md` |
 | Saying "already confirmed in previous session" | If `pipeline-state.json` doesn't exist or doesn't show the step completed, it has NOT been done — do it now |
 | Writing spec files yourself instead of dispatching to a subagent | You coordinate — subagents write files. Launch the agent and let it work. |
+| Building the feature inline instead of running the 8 steps | The pipeline IS the deliverable. Working code with no specs, no review report, no tests and no docs is a FAILED run, not a fast one. |
+| Skipping a step or an artifact because a question went unanswered | Choose a default, record it as auto-selected, run the step, write the artifact |
+| Marking the pipeline `"completed"` without verifying files on disk | Every gate check runs against real files. No file, no completion. |
+| Writing a step name that isn't in the 8-step list | `last_completed_step` must be one of the 8 names above, or "Codebase Snapshot" |
 
 ---
 
@@ -416,7 +445,7 @@ Mark: Feature Specs → `[✓]`. Update `pipeline-state.json`: Step 4 → `"comp
 ═══════════════════════════════════════════════════════
 ```
 
-Wait for user confirmation.
+Wait for user confirmation. **In Unattended Mode:** record the gate as auto-approved in `pipeline-state.json` and continue immediately — do not stall.
 
 ## Step 5 — Development Agent (subagent)
 
@@ -456,7 +485,7 @@ Mark: Development Agent → `[✓]`. Update `pipeline-state.json`: Step 5 → `"
 ═══════════════════════════════════════════════════════
 ```
 
-Wait for user confirmation.
+Wait for user confirmation. **In Unattended Mode:** record the gate as auto-approved in `pipeline-state.json` and continue immediately — do not stall.
 
 ## Step 6 — Code Review Agent (auto-chain)
 

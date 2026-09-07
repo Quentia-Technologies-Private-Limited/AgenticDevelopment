@@ -11,7 +11,7 @@
       "name": "dev-made-easy",
       "source": "./",
       "description": "Multi-agent development pipeline — planning, coding, code review, testing, and documentation in one orchestrated workflow.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Quentia Technologies"
       },

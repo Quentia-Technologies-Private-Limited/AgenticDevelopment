@@ -5,7 +5,7 @@ description: >
   from 03-tech-decisions.md, sets up Docker services if needed, and follows OOP/Factory
   Pattern from the spec. Invoked by the Development Orchestrator after Planning approval.
   Can also be used standalone with a spec path.
-model: claude-opus-4-6
+model: inherit
 ---
 
 # Development Agent

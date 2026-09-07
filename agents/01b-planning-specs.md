@@ -4,7 +4,7 @@ description: >
   Phase 2 of planning. Receives confirmed technology decisions and produces
   tech-dependent artifacts: tech-decisions record, database schema, and API contracts.
   Only runs AFTER technology choices are confirmed. Invoked by the Development Orchestrator.
-model: claude-opus-4-6
+model: inherit
 ---
 
 # Planning Specs Agent (Phase 2)

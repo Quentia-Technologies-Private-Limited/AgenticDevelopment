@@ -5,7 +5,7 @@ description: >
   artifacts: technical analysis, product spec, and acceptance criteria.
   Does NOT create database schema or API contracts — those require technology
   decisions that haven't been made yet. Invoked by the Development Orchestrator.
-model: claude-opus-4-6
+model: inherit
 ---
 
 # Planning Analysis Agent (Phase 1)
