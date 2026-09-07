@@ -323,7 +323,9 @@ Ensure every endpoint has:
 
 ### api_usage.md
 
-Create `{spec_path}/api_usage.md` with one working `curl` example per endpoint defined in `05-api-contracts.md`. Use realistic but synthetic values — never real credentials or production data. Group examples by resource.
+**Greenfield mode:** Create `{spec_path}/api_usage.md` with one working `curl` example per endpoint defined in `05-api-contracts.md`. Use realistic but synthetic values — never real credentials or production data. Group examples by resource.
+
+**Feature Addition mode:** Read the EXISTING `api_usage.md` from the original greenfield spec folder (check `docs/specs/*/api_usage.md`). ADD curl examples for any new or modified endpoints introduced by this feature. Do not remove or rewrite existing examples. If the original file doesn't exist, create a new one in `{spec_path}/api_usage.md`.
 
 Template:
 

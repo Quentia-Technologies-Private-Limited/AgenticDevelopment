@@ -34,6 +34,7 @@ In Feature Addition mode, do NOT overwrite existing documentation. Instead:
 - **README.md**: Read the existing README first. ADD the new feature to the features list, add new endpoints to the API section, add new environment variables if any. Preserve everything else.
 - **docs/API.md**: Read the existing API docs first. ADD new or modified endpoints only. Do not remove or rewrite existing endpoint documentation.
 - **CHANGELOG.md**: Read the existing changelog first. ADD a new version entry at the top for this feature. Do not modify existing entries.
+- **api_usage.md**: Find the existing `api_usage.md` in the greenfield spec folder (check `docs/specs/*/api_usage.md`). ADD curl examples for any new or modified endpoints introduced by this feature. Do not remove or rewrite existing examples.
 - **Docstrings**: Add docstrings to NEW code only. Do not modify existing docstrings unless the feature changed the behavior of an existing method.
 
 If `docs/codebase/00-codebase-analysis.md` does NOT exist, you are in **Greenfield mode** — create all documentation from scratch (default behavior below).
