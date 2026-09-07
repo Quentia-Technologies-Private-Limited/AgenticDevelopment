@@ -1,0 +1,21 @@
+{
+  "name": "agentic-development",
+  "metadata": {
+    "description": "Multi-agent development pipelines for Claude Code — from planning to production"
+  },
+  "owner": {
+    "name": "Quentia Technologies"
+  },
+  "plugins": [
+    {
+      "name": "dev-made-easy",
+      "source": "./dev-made-easy",
+      "description": "Multi-agent development pipeline — planning, coding, code review, testing, and documentation in one orchestrated workflow.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Quentia Technologies"
+      },
+      "license": "MIT"
+    }
+  ]
+}
