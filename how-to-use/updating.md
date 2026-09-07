@@ -26,16 +26,37 @@ Then inside your Claude Code session:
 
 ---
 
+## Manual Cache Sync (if `--update-cache` is unavailable)
+
+If you're working from a local branch (e.g., `temp`) or made direct edits to agent files, sync the cache manually:
+
+```bash
+# Sync agents, commands, and plugin manifest to cache
+cp -r ~/Documents/GitHub/AgenticDevelopment/agents/ ~/.claude/plugins/cache/agentic-development/dev-made-easy/1.0.0/agents/
+cp -r ~/Documents/GitHub/AgenticDevelopment/commands/ ~/.claude/plugins/cache/agentic-development/dev-made-easy/1.0.0/commands/
+cp ~/Documents/GitHub/AgenticDevelopment/.claude-plugin/plugin.json ~/.claude/plugins/cache/agentic-development/dev-made-easy/1.0.0/.claude-plugin/plugin.json
+```
+
+Then inside Claude Code:
+
+```
+/reload-plugins
+```
+
+> **Note:** Adjust the version directory (`1.0.0`) if the plugin version has changed. Check with `ls ~/.claude/plugins/cache/agentic-development/dev-made-easy/`.
+
+---
+
 ## Why 4 Steps?
 
 | Step | What it does | Without it |
 |------|-------------|------------|
 | `git pull` | Updates the local clone from GitHub | Local clone still has old agent files |
-| `--update-cache` | Force-copies agents into the plugin cache and verifies with `diff` | **Cache keeps stale agents** even after `plugin update` |
+| `--update-cache` | Force-copies agents, commands, and plugin.json into the plugin cache and verifies with `diff` | **Cache keeps stale files** even after `plugin update` |
 | `plugin update` | Updates plugin metadata and manifest | Manifest may be out of date |
 | `/reload-plugins` | Loads the updated cache into the active session | Session still runs old agents |
 
-> **Why is step 2 needed?** `claude plugin update` does not always copy updated agent files into the plugin cache at `~/.claude/plugins/cache/`. The `--update-cache` flag auto-detects the versioned cache directory, copies all agents, and verifies each file matches. This is more reliable than a manual `cp` with a hardcoded version path.
+> **Why is step 2 needed?** `claude plugin update` does not always copy updated files into the plugin cache at `~/.claude/plugins/cache/`. The `--update-cache` flag auto-detects the versioned cache directory, copies all agents, commands, and plugin.json, and verifies each file matches. This is more reliable than a manual `cp` with a hardcoded version path.
 
 ---
 
