@@ -108,7 +108,8 @@ AgenticDevelopment/              ← this repo IS the plugin
 ├── how-to-use/
 │   ├── installation.md          ← install via plugin system or install.sh
 │   ├── updating.md              ← pull + cache sync + reload
-│   └── uninstallation.md        ← remove plugin and cleanup
+│   ├── uninstallation.md        ← remove plugin and cleanup
+│   └── cowork.md                ← install/update/uninstall for CoWork (hosted sessions)
 ├── install.sh                   ← manual fallback installer + cache sync
 └── README.md
 ```
@@ -164,6 +165,7 @@ model: inherit            ← inherits the session model; or set sonnet/opus/hai
 - [Installation](how-to-use/installation.md)
 - [Updating](how-to-use/updating.md)
 - [Uninstallation](how-to-use/uninstallation.md)
+- [CoWork (Hosted Sessions)](how-to-use/cowork.md)
 
 ## Usage
 
